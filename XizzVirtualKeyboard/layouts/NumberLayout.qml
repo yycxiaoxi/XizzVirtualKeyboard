@@ -8,6 +8,7 @@ ColumnLayout {
     id: root
     spacing: 6
     signal keyPressed(string value)
+    signal submitPressed()
     signal backspacePressed()
     signal switchBack()
     signal switchToSymbols()
@@ -52,6 +53,6 @@ ColumnLayout {
         FunctionKey { Layout.fillWidth: true; Layout.preferredHeight: 48; keyText: "\u8fd4\u56de"; onClicked: root.switchBack() }
         TextKey { Layout.fillWidth: true; Layout.preferredHeight: 48; keyChar: "0"; onPressed: root.keyPressed(keyChar) }
         SpaceMicKey { Layout.fillWidth: true; Layout.preferredHeight: 48; onPressed: root.keyPressed(" ") }
-        EnterKey { Layout.fillWidth: true; Layout.preferredHeight: 48; onPressed: root.keyPressed("\n") }
+        EnterKey { Layout.fillWidth: true; Layout.preferredHeight: 48; onPressed: root.submitPressed() }
     }
 }

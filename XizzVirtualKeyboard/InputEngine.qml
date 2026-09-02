@@ -27,13 +27,19 @@ QtObject {
         var t = formatKey(text)
         buffer += t
         if (bridge && bridge.commitText) bridge.commitText(t)
-        else console.warn("OpenKeyboard: bridge not connected")
+        else console.warn("XizzVirtualKeyboard: bridge not connected")
+    }
+
+    function commitRaw(text) {
+        buffer += text
+        if (bridge && bridge.commitText) bridge.commitText(text)
+        else console.warn("XizzVirtualKeyboard: bridge not connected")
     }
 
     function backspace() {
         if (buffer.length > 0) buffer = buffer.slice(0, buffer.length - 1)
         if (bridge && bridge.deleteSurrounding) bridge.deleteSurrounding(1)
-        else console.warn("OpenKeyboard: bridge not connected")
+        else console.warn("XizzVirtualKeyboard: bridge not connected")
     }
 
     function clearBuffer() {
@@ -49,4 +55,9 @@ QtObject {
         }
     }
     function commitCandidate(text) { clearBuffer(); commit(text) }
+
+    function submit() {
+        if (bridge && bridge.submit) bridge.submit()
+        else if (bridge && bridge.hideKeyboard) bridge.hideKeyboard()
+    }
 }

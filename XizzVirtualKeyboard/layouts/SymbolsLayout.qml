@@ -8,6 +8,7 @@ ColumnLayout {
     id: root
     spacing: 6
     signal keyPressed(string value)
+    signal submitPressed()
     signal backspacePressed()
     signal switchBack()
 
@@ -102,8 +103,7 @@ ColumnLayout {
             Layout.fillWidth: true
             Layout.preferredWidth: 78
             Layout.fillHeight: true
-            onPressed: root.keyPressed("
-")
+            onPressed: root.submitPressed()
         }
     }
 }

@@ -14,13 +14,9 @@ Rectangle {
     implicitHeight: mainCol.implicitHeight + 16
 
     property alias engine: inputEngine
-    property string actionLabel: "\u641c\u7d22"
-    property color actionColor: "#00C7A0"
     property bool showCandidateBar: true
     // ImhHiddenText (Password) — keyboard stays open, preview is masked (bridge is authoritative)
     property bool isPassword: bridge ? bridge.isPassword : false
-
-    signal actionTriggered()
 
     property var bridge: null
     InputEngine { id: inputEngine; bridge: root.bridge }
@@ -106,6 +102,8 @@ Rectangle {
             QwertyLayout {
                 upperCase: inputEngine.upperCase
                 onKeyPressed: inputEngine.commit(value)
+                onHintKeyPressed: inputEngine.commitRaw(value)
+                onSubmitPressed: inputEngine.submit()
                 onShiftPressed: inputEngine.toggleShift()
                 onBackspacePressed: inputEngine.backspace()
                 onSwitchToSymbols: inputEngine.page = 1
@@ -113,41 +111,19 @@ Rectangle {
             }
             SymbolsLayout {
                 onKeyPressed: inputEngine.commit(value)
+                onSubmitPressed: inputEngine.submit()
                 onBackspacePressed: inputEngine.backspace()
                 onSwitchBack: inputEngine.page = 0
             }
             NumberLayout {
                 onKeyPressed: inputEngine.commit(value)
+                onSubmitPressed: inputEngine.submit()
                 onBackspacePressed: inputEngine.backspace()
                 onSwitchBack: inputEngine.page = 0
                 onSwitchToSymbols: inputEngine.page = 1
             }
         }
 
-        RowLayout {
-            visible: false // layouts each have their own bottom bar (screenshots 1-3)
-            Layout.fillWidth: true
-            spacing: 6
-            Layout.preferredHeight: 48
-            FunctionKey {
-                Layout.preferredWidth: 92
-                Layout.fillHeight: true
-                keyText: "ABC"
-                onClicked: inputEngine.page = 0
-            }
-            TextKey {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                keyChar: "0"
-                onPressed: inputEngine.commit("0")
-            }
-            ActionKey {
-                Layout.preferredWidth: 110
-                Layout.fillHeight: true
-                keyText: root.actionLabel
-                onClicked: root.actionTriggered()
-            }
-        }
     }
 
     function applyHints(hints) {

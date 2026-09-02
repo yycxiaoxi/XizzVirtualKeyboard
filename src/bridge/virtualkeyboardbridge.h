@@ -5,17 +5,17 @@
 #include <QRectF>
 #include <QLocale>
 
-#if __has_include("openkeyboard_export.h")
-#include "openkeyboard_export.h"
-#elif __has_include("OpenKeyboard/openkeyboard_export.h")
-#include "OpenKeyboard/openkeyboard_export.h"
+#if __has_include("virtualkeyboard_export.h")
+#include "virtualkeyboard_export.h"
+#elif __has_include("XizzVirtualKeyboard/virtualkeyboard_export.h")
+#include "XizzVirtualKeyboard/virtualkeyboard_export.h"
 #else
-#ifndef OPENKEYBOARD_EXPORT
-#define OPENKEYBOARD_EXPORT
+#ifndef XIZZVIRTUALKEYBOARD_EXPORT
+#define XIZZVIRTUALKEYBOARD_EXPORT
 #endif
 #endif
 
-class OPENKEYBOARD_EXPORT OpenKeyboardBridge : public QObject
+class XIZZVIRTUALKEYBOARD_EXPORT XizzVirtualKeyboardBridge : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(bool visible READ visible NOTIFY visibleChanged)
@@ -27,10 +27,10 @@ class OPENKEYBOARD_EXPORT OpenKeyboardBridge : public QObject
     Q_PROPERTY(int inputMethodHints READ inputMethodHints NOTIFY inputMethodHintsChanged)
 
 public:
-    static OpenKeyboardBridge *instance();
+    static XizzVirtualKeyboardBridge *instance();
 
     // Publishes instance() to every QML engine as the singleton
-    // "openKeyboardBridge" in module OpenKeyboard.Internal, so panel QML
+    // "xizzVirtualKeyboardBridge" in module XizzVirtualKeyboard.Internal, so panel QML
     // resolves it without any host-side context property. Idempotent.
     static void registerQmlSingleton();
 
@@ -47,6 +47,7 @@ public:
     Q_INVOKABLE void commitText(const QString &text);
     Q_INVOKABLE void deleteSurrounding(int chars);
     Q_INVOKABLE void hideKeyboard();
+    Q_INVOKABLE void submit();
     Q_INVOKABLE void setSurroundingText(const QString &text);
     QString surroundingText() const { return m_surroundingText; }
     bool isPassword() const { return m_isPassword; }
@@ -62,12 +63,13 @@ signals:
     void commitRequested(const QString &text);
     void deleteRequested(int chars);
     void hideRequested();
+    void submitRequested();
     void surroundingChanged(const QString &text);
     void isPasswordChanged();
     void inputMethodHintsChanged();
 
 private:
-    explicit OpenKeyboardBridge(QObject *parent = nullptr);
+    explicit XizzVirtualKeyboardBridge(QObject *parent = nullptr);
     bool m_visible = false;
     QRectF m_keyboardRect;
     QString m_styleName = QStringLiteral("compact");

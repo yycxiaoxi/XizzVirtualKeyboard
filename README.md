@@ -1,4 +1,4 @@
-# OpenKeyboard
+# XizzVirtualKeyboard
 
 > QML 虚拟键盘 · 开箱即用 · **2 行集成**
 
@@ -9,8 +9,8 @@
 为嵌入式 Qt Quick 项目准备的虚拟键盘。参考 Qt Virtual Keyboard 架构、自研 QML 实现，无需手动 `show()` / `hide()` —— 设为系统输入法后，任意 `TextField` 聚焦即自动弹出。
 
 ```qml
-import OpenKeyboard 1.0
-OpenInputPanel { parent: Overlay.overlay; actionLabel: "搜索" }
+import XizzVirtualKeyboard 1.0
+OpenInputPanel { parent: Overlay.overlay }
 ```
 
 ---
@@ -19,7 +19,7 @@ OpenInputPanel { parent: Overlay.overlay; actionLabel: "搜索" }
 
 - **零配置弹出** — 接管 `Qt.inputMethod`，`visible` / `keyboardRectangle` 全局联动
 - **智能切页** — 随 `inputMethodHints` 自动切换 字母 / 数字 / 邮箱 / 密码
-- **两套主题** — `compact` 还原设计稿、`default` 通用，`OPENKEYBOARD_STYLE` 一键切换
+- **两套主题** — `compact` 还原设计稿、`default` 通用，`XIZZVIRTUALKEYBOARD_STYLE` 一键切换
 - **单一产物** — 整个键盘（输入法插件 + QML 模块）是一个 `.so`：宿主**零链接、零头文件、零初始化调用**
 - **Qt5 / Qt6 通用** — 同一套代码，CMake 自动适配 `qt_add_qml_module` 与 `qrc`
 
@@ -31,7 +31,7 @@ OpenInputPanel { parent: Overlay.overlay; actionLabel: "搜索" }
 
 compact（默认）配色：`bg #EDEFF2` · `key #FFF` · `func #C9CDD3` · `accent #00C7A0`；default：`accent #3A7BFF`
 
-> 主题定义见 `OpenKeyboard/styles/compact/Style.qml` 与 `OpenKeyboard/styles/default/Style.qml`
+> 主题定义见 `XizzVirtualKeyboard/styles/compact/Style.qml` 与 `XizzVirtualKeyboard/styles/default/Style.qml`
 
 ---
 
@@ -40,7 +40,7 @@ compact（默认）配色：`bg #EDEFF2` · `key #FFF` · `func #C9CDD3` · `acc
 ### 1 — CMake：一行引入
 
 ```cmake
-add_subdirectory(3rdparty/qml-openkeyborad)
+add_subdirectory(3rdparty/XizzVirtualKeyboard)
 ```
 
 ### 2 — `main.cpp`：一行选输入法
@@ -48,7 +48,7 @@ add_subdirectory(3rdparty/qml-openkeyborad)
 ```cpp
 int main(int argc, char *argv[])
 {
-    qputenv("QT_IM_MODULE", QByteArray("openkeyboard")); // 必须在 QGuiApplication 之前
+    qputenv("QT_IM_MODULE", QByteArray("xizzvirtualkeyboard")); // 必须在 QGuiApplication 之前
 
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 ```qml
 import QtQuick
 import QtQuick.Controls
-import OpenKeyboard 1.0
+import XizzVirtualKeyboard 1.0
 
 ApplicationWindow {
     visible: true
@@ -72,33 +72,31 @@ ApplicationWindow {
     OpenInputPanel {
         parent: Overlay.overlay
         z: 9999
-        actionLabel: "搜索"
-        onActionTriggered: console.log(text)
     }
 }
 ```
 
 就这样 — 没有 `target_link_libraries`，没有头文件，没有 setup 调用，没有 context property。Qt 按 `QT_IM_MODULE` 自动加载插件；加载即完成全部接线（QML 模块注册、桥接单例注入），详见[工作原理](#工作原理)。
 
-> 若宿主可执行文件不在构建根目录（如多配置生成器或嵌套输出目录），在宿主 CMake 里加一行 `openkeyboard_deploy_to(your_app)`，把插件拷到 exe 旁的 `platforminputcontexts/`。
+> 若宿主可执行文件不在构建根目录（如多配置生成器或嵌套输出目录），在宿主 CMake 里加一行 `xizzvirtualkeyboard_deploy_to(your_app)`，把插件拷到 exe 旁的 `platforminputcontexts/`。
 
 ---
 
 ## 工作原理
 
-整个键盘是**一个 Qt 平台输入法插件**（`platforminputcontexts/openkeyboard_platforminputcontext.so`），内部包含输入上下文、桥接单例和完整 QML 模块：
+整个键盘是**一个 Qt 平台输入法插件**（`platforminputcontexts/xizzvirtualkeyboard_platforminputcontext.so`），内部包含输入上下文、桥接单例和完整 QML 模块：
 
-1. `QT_IM_MODULE=openkeyboard` 使 Qt 启动时在应用目录 `platforminputcontexts/` 自动 dlopen 插件 —— 宿主无需链接任何东西
+1. `QT_IM_MODULE=xizzvirtualkeyboard` 使 Qt 启动时在应用目录 `platforminputcontexts/` 自动 dlopen 插件 —— 宿主无需链接任何东西
 2. 插件加载时静态初始化器完成接线：
-   - 注册 QML 单例 `OpenKeyboardBridge`（模块 `OpenKeyboard.Internal`），面板 QML 因此无需宿主注入 context property
+   - 注册 QML 单例 `XizzVirtualKeyboardBridge`（模块 `XizzVirtualKeyboard.Internal`），面板 QML 因此无需宿主注入 context property
    - 注入 QML import 路径（Qt5 构建树走源码根 qmldir；Qt6 由 `qt_add_qml_module` 在加载时注册，qrc:/qt/qml 为默认 import path）
-3. QML 模块（qmldir + 全部 QML + 图标）内嵌在插件资源中，`import OpenKeyboard 1.0` 由 Qt 直接解析
+3. QML 模块（qmldir + 全部 QML + 图标）内嵌在插件资源中，`import XizzVirtualKeyboard 1.0` 由 Qt 直接解析
 4. 键盘通过 `QInputMethodEvent` 与焦点对象通信，不直接修改 `text`
 
 ## 主题
 
 ```cpp
-qputenv("OPENKEYBOARD_STYLE", QByteArray("compact")); // compact | default
+qputenv("XIZZVIRTUALKEYBOARD_STYLE", QByteArray("compact")); // compact | default
 // 必须在 QGuiApplication 之前
 ```
 
@@ -108,7 +106,7 @@ qputenv("OPENKEYBOARD_STYLE", QByteArray("compact")); // compact | default
 | `accentBg` | `#00C7A0` | `#3A7BFF` |
 | `keyBg / funcBg` | `#FFF / #C9CDD3` | 同左 |
 
-单例路径：`OpenKeyboard/styles/compact/Style.qml`、`OpenKeyboard/styles/default/Style.qml`，`KeyboardStyle.qml` 为兼容保留。
+单例路径：`XizzVirtualKeyboard/styles/compact/Style.qml`、`XizzVirtualKeyboard/styles/default/Style.qml`，`KeyboardStyle.qml` 为兼容保留。
 
 ## 构建与安装
 
@@ -120,23 +118,23 @@ cmake --build build
 安装 = 装进 Qt 目录，装完 Qt 原生发现插件与 QML：
 
 ```bash
-cmake -B build -DOPENKEYBOARD_INSTALL=ON
+cmake -B build -DXIZZVIRTUALKEYBOARD_INSTALL=ON
 cmake --install build --prefix /path/to/Qt/5.15.2/gcc_64
-# → <Qt>/plugins/platforminputcontexts/  与  <Qt>/qml/OpenKeyboard/
+# → <Qt>/plugins/platforminputcontexts/  与  <Qt>/qml/XizzVirtualKeyboard/
 ```
 
 ## 目录
 
 ```
-OpenKeyboard/             # QML 模块（对外唯一入口 OpenInputPanel）
+XizzVirtualKeyboard/             # QML 模块（对外唯一入口 OpenInputPanel）
   OpenInputPanel.qml      #   跟随 Overlay 置顶、自动弹出
-  OpenKeyboard.qml / InputEngine.qml / CandidateBar.qml
+  XizzVirtualKeyboard.qml / InputEngine.qml / CandidateBar.qml
   layouts/                # Qwerty / Symbols / Number
   styles/                 # compact / default 单例主题
   components/             # KeyButton / TextKey / EnterKey / ...
 src/
-  bridge/                 # OpenKeyboardBridge 单例（插件内部）
-  platforminputcontext/   # QPlatformInputContext 插件 (key: openkeyboard)
+  bridge/                 # XizzVirtualKeyboardBridge 单例（插件内部）
+  platforminputcontext/   # QPlatformInputContext 插件 (key: xizzvirtualkeyboard)
 example/                  # 最简宿主：全项目仅一行 qputenv
 ```
 
@@ -145,14 +143,14 @@ example/                  # 最简宿主：全项目仅一行 qputenv
 ## 已知边界
 
 - **Qt6 6.2–6.4** 且未安装到 Qt 目录的宿主：`qrc:/qt/qml` 尚非默认 import path，需补一行 `engine.addImportPath("qrc:/qt/qml")`；Qt6 ≥6.5 与全部 Qt5 构建树零配置
-- `OpenInputPanel` 依赖输入法插件处于活动状态（`QT_IM_MODULE=openkeyboard`），纯 QML 环境下仅作降级显示
+- `OpenInputPanel` 依赖输入法插件处于活动状态（`QT_IM_MODULE=xizzvirtualkeyboard`），纯 QML 环境下仅作降级显示
 - 插件构建依赖 `Qt::GuiPrivate`（`qpa/qplatforminputcontext.h`），Qt 官方不保证私有 ABI 跨版本兼容
 
 ## 常用选项
 
 ```bash
--DOPENKEYBOARD_BUILD_EXAMPLE=ON/OFF   # 被 add_subdirectory 时默认 OFF
--DOPENKEYBOARD_INSTALL=ON             # 生成安装规则（装入 Qt 目录）
+-DXIZZVIRTUALKEYBOARD_BUILD_EXAMPLE=ON/OFF   # 被 add_subdirectory 时默认 OFF
+-DXIZZVIRTUALKEYBOARD_INSTALL=ON             # 生成安装规则（装入 Qt 目录）
 ```
 
 ---

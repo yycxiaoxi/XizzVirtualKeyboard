@@ -2,14 +2,14 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
-import OpenKeyboard 1.0
+import XizzVirtualKeyboard 1.0
 
 ApplicationWindow {
     id: win
     width: 800
     height: 480
     visible: true
-    title: "OpenKeyboard Example"
+    title: "XizzVirtualKeyboard Example"
 
     // Background tap: tapping empty area clears focus and dismisses keyboard.
     // Guarded to ignore clicks that land within keyboard bounds (including gaps/margins).
@@ -47,8 +47,6 @@ ApplicationWindow {
         id: keyboard
         parent: Overlay.overlay
         anchors.bottom: parent.bottom
-        actionLabel: "\u641c\u7d22"
-        onActionTriggered: {} // was console.log("action:", text)
     }
 
     Component.onCompleted: f1.forceActiveFocus()
