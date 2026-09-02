@@ -36,7 +36,7 @@ static bool isKeyboardChrome(QObject *object)
         if (mo->indexOfProperty("keyText") != -1 || mo->indexOfProperty("keyChar") != -1)
             return true;
         // XizzVirtualKeyboard / OpenInputPanel roots are plain QQuickRectangle/QQuickItem but expose unique properties
-        if (mo->indexOfProperty("showCandidateBar") != -1 || mo->indexOfProperty("actionLabel") != -1)
+        if (mo->indexOfProperty("showCandidateBar") != -1)
             return true;
     }
     return false;

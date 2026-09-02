@@ -10,10 +10,8 @@ Item {
     // plugin itself; null (and graceful degradation) if registration is absent.
     property var bridge: (typeof XizzVirtualKeyboardBridge !== "undefined") ? XizzVirtualKeyboardBridge : null
     property bool active: false
-    property string actionLabel: "\u641c\u7d22"
     property color themeColor: "#00C7A0"
     property bool showCandidateBar: true
-    signal actionTriggered(string text)
     signal closed()
 
     width: parent ? parent.width : 800
@@ -88,17 +86,8 @@ Item {
     XizzVirtualKeyboard {
         id: keyboardView
         width: root.width
-        actionLabel: root.actionLabel
-        actionColor: root.themeColor
         showCandidateBar: root.showCandidateBar
         bridge: root.bridge
-        onActionTriggered: {
-            var t = ""
-            if (typeof Qt.inputMethod !== "undefined" && Qt.inputMethod.surroundingText !== undefined)
-                t = Qt.inputMethod.surroundingText
-            root.actionTriggered(t)
-            root.hide()
-        }
     }
 
     Component.onCompleted: {

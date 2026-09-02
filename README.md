@@ -10,7 +10,7 @@
 
 ```qml
 import XizzVirtualKeyboard 1.0
-OpenInputPanel { parent: Overlay.overlay; actionLabel: "搜索" }
+OpenInputPanel { parent: Overlay.overlay }
 ```
 
 ---
@@ -72,8 +72,6 @@ ApplicationWindow {
     OpenInputPanel {
         parent: Overlay.overlay
         z: 9999
-        actionLabel: "搜索"
-        onActionTriggered: console.log(text)
     }
 }
 ```

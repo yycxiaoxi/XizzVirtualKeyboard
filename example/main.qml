@@ -47,8 +47,6 @@ ApplicationWindow {
         id: keyboard
         parent: Overlay.overlay
         anchors.bottom: parent.bottom
-        actionLabel: "\u641c\u7d22"
-        onActionTriggered: {} // was console.log("action:", text)
     }
 
     Component.onCompleted: f1.forceActiveFocus()
