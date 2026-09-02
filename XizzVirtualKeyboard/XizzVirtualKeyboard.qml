@@ -102,6 +102,7 @@ Rectangle {
             QwertyLayout {
                 upperCase: inputEngine.upperCase
                 onKeyPressed: inputEngine.commit(value)
+                onHintKeyPressed: inputEngine.commitRaw(value)
                 onShiftPressed: inputEngine.toggleShift()
                 onBackspacePressed: inputEngine.backspace()
                 onSwitchToSymbols: inputEngine.page = 1

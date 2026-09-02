@@ -44,12 +44,19 @@ Item {
         _hintIndex = 1
         hintTimer.start()
     }
+    // End of the shared hint (alt-char) gesture.
+    // - If the strip is visible, the three cells already encode the wanted casing
+    //   (index 0 = upper, 1 = hint symbol, 2 = lower), so commit via the dedicated
+    //   `hintKeyPressed` path which bypasses InputEngine.formatKey's uppercase pass.
+    // - Otherwise fall back to the tapped key: emit its raw `keyChar` so the engine's
+    //   normal `formatKey` / upperCase handling can apply exactly once.
+    signal hintKeyPressed(string value)
     function endHint(commit) {
         hintTimer.stop()
         if (_hintVisible && _hintSource) {
             var base = _hintSource.keyChar.toLowerCase()
             var v = _hintIndex === 0 ? base.toUpperCase() : (_hintIndex === 1 ? _hintSource.hintText : base)
-            if (commit && v.length > 0) root.keyPressed(v)
+            if (commit && v.length > 0) root.hintKeyPressed(v)
             _hintVisible = false
         } else if (!_hintVisible && _hintSource && commit) {
             root.keyPressed(_hintSource.keyChar)
