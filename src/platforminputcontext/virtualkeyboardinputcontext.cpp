@@ -6,6 +6,8 @@
 #include <QScreen>
 #include <QInputMethodEvent>
 #include <QInputMethod>
+#include <QQuickItem>
+#include <QTimer>
 
 XizzVirtualKeyboardInputContext::XizzVirtualKeyboardInputContext(QObject *parent)
     : QPlatformInputContext()
@@ -75,12 +77,14 @@ void XizzVirtualKeyboardInputContext::setFocusObject(QObject *object)
     // After Qt wires the new focus object, re-query so surrounding text etc.
     // are read from the *new* focus item (first show included).
     queryFocusObject();
+    scheduleScrollIntoView();
 }
 
 void XizzVirtualKeyboardInputContext::update(Qt::InputMethodQueries queries)
 {
     Q_UNUSED(queries)
     queryFocusObject();
+    scheduleScrollIntoView();
 }
 
 void XizzVirtualKeyboardInputContext::queryFocusObject()
@@ -156,6 +160,7 @@ void XizzVirtualKeyboardInputContext::showInputPanel()
     emitInputPanelVisibleChanged();
     emitKeyboardRectChanged();
     update(Qt::ImQueryAll);
+    scheduleScrollIntoView();
 }
 
 void XizzVirtualKeyboardInputContext::hideInputPanel()
@@ -168,6 +173,69 @@ void XizzVirtualKeyboardInputContext::hideInputPanel()
     XizzVirtualKeyboardBridge::instance()->setKeyboardRect(m_keyboardRect);
     emitInputPanelVisibleChanged();
     emitKeyboardRectChanged();
+}
+
+// The keyboard is a pure overlay on Qt5/Quick: nothing moves the host content
+// out of the way automatically. Hosts previously had to react to input focus
+// ("focus -> Qt.callLater(ensureVisible)") to keep the edited field visible.
+// We instead react to the panel becoming visible, which fires before the field
+// even reports activeFocus, so the field is scrolled into view *on keyboard
+// popup* regardless of who took focus.
+void XizzVirtualKeyboardInputContext::scheduleScrollIntoView()
+{
+    if (m_scrollScheduled || !m_visible)
+        return;
+    m_scrollScheduled = true;
+    QTimer::singleShot(0, this, [this]() {
+        m_scrollScheduled = false;
+        scrollFocusInputIntoView();
+    });
+}
+
+void XizzVirtualKeyboardInputContext::scrollFocusInputIntoView()
+{
+    if (!m_visible)
+        return;
+    QObject *windowFocus = QGuiApplication::focusObject();
+    if (!windowFocus || !isTextInput(windowFocus))
+        return;
+    auto *focusItem = qobject_cast<QQuickItem *>(windowFocus);
+    if (!focusItem)
+        return;
+    // Find the nearest scrollable ancestor (Flickable / ListView / GridView all
+    // expose contentY + contentItem as QObject properties; that is enough to
+    // drive them without any QtQuick-private headers).
+    QObject *scrollable = nullptr;
+    for (QQuickItem *p = focusItem->parentItem(); p; p = p->parentItem()) {
+        const QMetaObject *mo = p->metaObject();
+        if (mo->indexOfProperty("contentY") != -1 && mo->indexOfProperty("contentItem") != -1) {
+            scrollable = p;
+            break;
+        }
+    }
+    if (!scrollable)
+        return; // no scrollable ancestor: nothing we can do from here
+    auto *view = qobject_cast<QQuickItem *>(scrollable);
+    auto *content = scrollable->property("contentItem").value<QQuickItem *>();
+    if (!view || !content)
+        return;
+    // Field bounds in content coordinates (same math hosts hand-write).
+    const QPointF itemPos = focusItem->mapToItem(content, QPointF(0, 0));
+    const qreal itemTop = itemPos.y();
+    const qreal itemBottom = itemTop + focusItem->height();
+    const qreal viewH = view->height();
+    const QVariant contentHeightVar = scrollable->property("contentHeight");
+    const qreal contentH = contentHeightVar.isValid() ? contentHeightVar.toReal() : content->height();
+    const qreal pad = 10;
+    qreal contentY = scrollable->property("contentY").toReal();
+    if (itemTop < contentY + pad)
+        contentY = itemTop - pad;
+    else if (itemBottom > contentY + viewH - pad)
+        contentY = itemBottom - viewH + pad;
+    const qreal maxY = qMax<qreal>(0, contentH - viewH);
+    contentY = qBound<qreal>(0, contentY, maxY);
+    if (!qFuzzyCompare(contentY + 1, scrollable->property("contentY").toReal() + 1))
+        scrollable->setProperty("contentY", contentY);
 }
 
 bool XizzVirtualKeyboardInputContext::isInputPanelVisible() const { return m_visible; }

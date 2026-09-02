@@ -5,6 +5,7 @@ singleton KeyboardStyle 1.0 styles/KeyboardStyle.qml
 CandidateBar 1.0 CandidateBar.qml
 InputEngine 1.0 InputEngine.qml
 OpenInputPanel 1.0 OpenInputPanel.qml
+ScrollArea 1.0 ScrollArea.qml
 XizzVirtualKeyboard 1.0 XizzVirtualKeyboard.qml
 KeyButton 1.0 components/KeyButton.qml
 TextKey 1.0 components/TextKey.qml
