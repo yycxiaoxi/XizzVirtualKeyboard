@@ -87,6 +87,16 @@ void XizzVirtualKeyboardInputContext::queryFocusObject()
 {
     if (!m_focusObject)
         return;
+    // QInputMethod::queryFocusObject() meta-calls "inputMethodQuery" on the
+    // *window's current* focus object (QGuiApplication::focusObject()), which
+    // during focus transitions / popup teardown can be a plain QQuickItem or a
+    // FocusScope wrapper instead of a real text input. Those objects expose no
+    // invokable inputMethodQuery, so each call makes Qt log
+    // "No such method ...::inputMethodQuery(Qt::InputMethodQuery,QVariant)".
+    // Only query while the window focus really is a text-capable object.
+    QObject *windowFocus = QGuiApplication::focusObject();
+    if (!windowFocus || !isTextInput(windowFocus))
+        return;
     const QVariant hintsVar = QInputMethod::queryFocusObject(Qt::ImHints, QVariant());
     if (hintsVar.isValid()) {
         m_hints = static_cast<Qt::InputMethodHints>(hintsVar.toInt());
@@ -219,11 +229,27 @@ void XizzVirtualKeyboardInputContext::onHideRequested()
 
 void XizzVirtualKeyboardInputContext::onSubmitRequested()
 {
-    if (!m_focusObject)
+    if (m_submitting)
         return;
+    if (!m_focusObject) {
+        hideInputPanel();
+        return;
+    }
+    m_submitting = true;
+    // Snapshot the target. The KeyPress below runs QML synchronously inside
+    // sendEvent(): a single-line TextInput reacts to Return with accepted() and
+    // editingFinished(), and XuiLoginDialog-style handlers use
+    // "onEditingFinished: focus = false", so the focused item can drop focus
+    // (Qt moves the window focus to a FocusScope/Item) or even be destroyed
+    // while we are still inside the press dispatch. setFocusObject() clears
+    // m_focusObject at that point. Sending KeyRelease to a focus object that no
+    // longer exists / no longer owns the key would crash — re-check before it.
+    const QPointer<QObject> focus = m_focusObject;
     QKeyEvent press(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier, QStringLiteral("\n"));
     QKeyEvent release(QEvent::KeyRelease, Qt::Key_Return, Qt::NoModifier, QStringLiteral("\n"));
-    QGuiApplication::sendEvent(m_focusObject, &press);
-    QGuiApplication::sendEvent(m_focusObject, &release);
+    QGuiApplication::sendEvent(focus, &press);
+    if (m_focusObject && m_focusObject == focus)
+        QGuiApplication::sendEvent(focus, &release);
+    m_submitting = false;
     hideInputPanel();
 }

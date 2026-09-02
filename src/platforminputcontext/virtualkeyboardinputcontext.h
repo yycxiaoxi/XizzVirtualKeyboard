@@ -41,6 +41,7 @@ private:
     QPointer<QObject> m_focusObject;
     bool m_visible = false;
     bool m_animating = false;
+    bool m_submitting = false;
     QRectF m_keyboardRect;
     QLocale m_locale;
     Qt::InputMethodHints m_hints = Qt::ImhNone;
