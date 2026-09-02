@@ -3,11 +3,11 @@
 #pragma once
 #include <qpa/qplatforminputcontextplugin_p.h>
 
-class OpenKeyboardPlugin : public QPlatformInputContextPlugin
+class XizzVirtualKeyboardPlugin : public QPlatformInputContextPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID QPlatformInputContextFactoryInterface_iid FILE "platforminputcontext.json")
 public:
-    explicit OpenKeyboardPlugin(QObject *parent = nullptr);
+    explicit XizzVirtualKeyboardPlugin(QObject *parent = nullptr);
     QPlatformInputContext *create(const QString &key, const QStringList &paramList) override;
 };

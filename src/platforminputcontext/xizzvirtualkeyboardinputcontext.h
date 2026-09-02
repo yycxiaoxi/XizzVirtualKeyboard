@@ -6,12 +6,12 @@
 #include <QRectF>
 #include <QLocale>
 
-class OpenKeyboardInputContext : public QPlatformInputContext
+class XizzVirtualKeyboardInputContext : public QPlatformInputContext
 {
     Q_OBJECT
 public:
-    explicit OpenKeyboardInputContext(QObject *parent = nullptr);
-    ~OpenKeyboardInputContext() override;
+    explicit XizzVirtualKeyboardInputContext(QObject *parent = nullptr);
+    ~XizzVirtualKeyboardInputContext() override;
 
     bool isValid() const override;
     void reset() override;

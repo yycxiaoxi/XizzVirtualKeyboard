@@ -5,11 +5,11 @@
 
 int main(int argc, char *argv[])
 {
-    // The only host-side integration line: pick OpenKeyboard as the platform
+    // The only host-side integration line: pick XizzVirtualKeyboard as the platform
     // input method. The plugin (and the QML module it carries) is discovered
     // by Qt itself from <appdir>/platforminputcontexts — no setup calls, no
     // context properties, nothing to link.
-    qputenv("QT_IM_MODULE", QByteArray("openkeyboard"));
+    qputenv("QT_IM_MODULE", QByteArray("xizzvirtualkeyboard"));
     if (qgetenv("QT_QUICK_BACKEND").isEmpty())
         qputenv("QT_QUICK_BACKEND", QByteArray("software"));
 

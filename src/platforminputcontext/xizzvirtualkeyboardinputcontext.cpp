@@ -1,28 +1,28 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 MTL
-#include "openkeyboardinputcontext.h"
-#include "bridge/openkeyboardbridge.h"
+#include "xizzvirtualkeyboardinputcontext.h"
+#include "bridge/xizzvirtualkeyboardbridge.h"
 #include <QGuiApplication>
 #include <QScreen>
 #include <QInputMethodEvent>
 #include <QInputMethod>
 
-OpenKeyboardInputContext::OpenKeyboardInputContext(QObject *parent)
+XizzVirtualKeyboardInputContext::XizzVirtualKeyboardInputContext(QObject *parent)
     : QPlatformInputContext()
 {
     Q_UNUSED(parent)
-    auto *bridge = OpenKeyboardBridge::instance();
-    connect(bridge, &OpenKeyboardBridge::commitRequested,
-            this, &OpenKeyboardInputContext::onCommitRequested);
-    connect(bridge, &OpenKeyboardBridge::deleteRequested,
-            this, &OpenKeyboardInputContext::onDeleteRequested);
-    connect(bridge, &OpenKeyboardBridge::hideRequested,
-            this, &OpenKeyboardInputContext::onHideRequested);
+    auto *bridge = XizzVirtualKeyboardBridge::instance();
+    connect(bridge, &XizzVirtualKeyboardBridge::commitRequested,
+            this, &XizzVirtualKeyboardInputContext::onCommitRequested);
+    connect(bridge, &XizzVirtualKeyboardBridge::deleteRequested,
+            this, &XizzVirtualKeyboardInputContext::onDeleteRequested);
+    connect(bridge, &XizzVirtualKeyboardBridge::hideRequested,
+            this, &XizzVirtualKeyboardInputContext::onHideRequested);
 }
 
-OpenKeyboardInputContext::~OpenKeyboardInputContext() = default;
+XizzVirtualKeyboardInputContext::~XizzVirtualKeyboardInputContext() = default;
 
-bool OpenKeyboardInputContext::isValid() const { return true; }
+bool XizzVirtualKeyboardInputContext::isValid() const { return true; }
 
 static bool isKeyboardChrome(QObject *object)
 {
@@ -31,11 +31,11 @@ static bool isKeyboardChrome(QObject *object)
         const QByteArray cn = mo->className();
         if (cn.contains("KeyButton") || cn.contains("TextKey") || cn.contains("FunctionKey")
             || cn.contains("ActionKey") || cn.contains("CandidateBar")
-            || cn.contains("OpenKeyboard") || cn.contains("OpenInputPanel") || cn.contains("ToolButton"))
+            || cn.contains("XizzVirtualKeyboard") || cn.contains("OpenInputPanel") || cn.contains("ToolButton"))
             return true;
         if (mo->indexOfProperty("keyText") != -1 || mo->indexOfProperty("keyChar") != -1)
             return true;
-        // OpenKeyboard / OpenInputPanel roots are plain QQuickRectangle/QQuickItem but expose unique properties
+        // XizzVirtualKeyboard / OpenInputPanel roots are plain QQuickRectangle/QQuickItem but expose unique properties
         if (mo->indexOfProperty("showCandidateBar") != -1 || mo->indexOfProperty("actionLabel") != -1)
             return true;
     }
@@ -47,7 +47,7 @@ static bool isTextInput(QObject *object)
     return object && object->metaObject()->indexOfProperty("inputMethodHints") != -1;
 }
 
-void OpenKeyboardInputContext::setFocusObject(QObject *object)
+void XizzVirtualKeyboardInputContext::setFocusObject(QObject *object)
 {
     if (object && isKeyboardChrome(object))
         return;
@@ -75,27 +75,27 @@ void OpenKeyboardInputContext::setFocusObject(QObject *object)
     queryFocusObject();
 }
 
-void OpenKeyboardInputContext::update(Qt::InputMethodQueries queries)
+void XizzVirtualKeyboardInputContext::update(Qt::InputMethodQueries queries)
 {
     Q_UNUSED(queries)
     queryFocusObject();
 }
 
-void OpenKeyboardInputContext::queryFocusObject()
+void XizzVirtualKeyboardInputContext::queryFocusObject()
 {
     if (!m_focusObject)
         return;
     const QVariant hintsVar = QInputMethod::queryFocusObject(Qt::ImHints, QVariant());
     if (hintsVar.isValid()) {
         m_hints = static_cast<Qt::InputMethodHints>(hintsVar.toInt());
-        OpenKeyboardBridge::instance()->setInputMethodHints(int(m_hints));
+        XizzVirtualKeyboardBridge::instance()->setInputMethodHints(int(m_hints));
     }
     const QVariant surrounding = QInputMethod::queryFocusObject(Qt::ImSurroundingText, QVariant());
     if (surrounding.isValid()) {
         const QString t = surrounding.toString();
         if (t != m_surroundingText) {
             m_surroundingText = t;
-            OpenKeyboardBridge::instance()->setSurroundingText(t);
+            XizzVirtualKeyboardBridge::instance()->setSurroundingText(t);
         }
     }
     const QVariant cursor = QInputMethod::queryFocusObject(Qt::ImCursorPosition, QVariant());
@@ -106,11 +106,11 @@ void OpenKeyboardInputContext::queryFocusObject()
         m_anchorPosition = anchor.toInt();
 }
 
-void OpenKeyboardInputContext::reset() {}
+void XizzVirtualKeyboardInputContext::reset() {}
 
-void OpenKeyboardInputContext::commit() {}
+void XizzVirtualKeyboardInputContext::commit() {}
 
-void OpenKeyboardInputContext::invokeAction(QInputMethod::Action action, int cursorPosition)
+void XizzVirtualKeyboardInputContext::invokeAction(QInputMethod::Action action, int cursorPosition)
 {
     Q_UNUSED(cursorPosition)
     if (action == QInputMethod::Click) {
@@ -118,16 +118,16 @@ void OpenKeyboardInputContext::invokeAction(QInputMethod::Action action, int cur
     }
 }
 
-bool OpenKeyboardInputContext::filterEvent(const QEvent *event)
+bool XizzVirtualKeyboardInputContext::filterEvent(const QEvent *event)
 {
     Q_UNUSED(event)
     return false;
 }
 
-QRectF OpenKeyboardInputContext::keyboardRect() const { return m_keyboardRect; }
-bool OpenKeyboardInputContext::isAnimating() const { return m_animating; }
+QRectF XizzVirtualKeyboardInputContext::keyboardRect() const { return m_keyboardRect; }
+bool XizzVirtualKeyboardInputContext::isAnimating() const { return m_animating; }
 
-void OpenKeyboardInputContext::showInputPanel()
+void XizzVirtualKeyboardInputContext::showInputPanel()
 {
     if (m_visible)
         return;
@@ -139,35 +139,35 @@ void OpenKeyboardInputContext::showInputPanel()
     if (screen.width() <= 0 || screen.height() <= 0)
         screen = QRect(0, 0, 800, 480);
     m_keyboardRect = QRectF(0, screen.height() - 260, screen.width(), 260);
-    OpenKeyboardBridge::instance()->setVisible(true);
-    OpenKeyboardBridge::instance()->setKeyboardRect(m_keyboardRect);
+    XizzVirtualKeyboardBridge::instance()->setVisible(true);
+    XizzVirtualKeyboardBridge::instance()->setKeyboardRect(m_keyboardRect);
     emitInputPanelVisibleChanged();
     emitKeyboardRectChanged();
     update(Qt::ImQueryAll);
 }
 
-void OpenKeyboardInputContext::hideInputPanel()
+void XizzVirtualKeyboardInputContext::hideInputPanel()
 {
     if (!m_visible)
         return;
     m_visible = false;
     m_keyboardRect = QRectF();
-    OpenKeyboardBridge::instance()->setVisible(false);
-    OpenKeyboardBridge::instance()->setKeyboardRect(m_keyboardRect);
+    XizzVirtualKeyboardBridge::instance()->setVisible(false);
+    XizzVirtualKeyboardBridge::instance()->setKeyboardRect(m_keyboardRect);
     emitInputPanelVisibleChanged();
     emitKeyboardRectChanged();
 }
 
-bool OpenKeyboardInputContext::isInputPanelVisible() const { return m_visible; }
+bool XizzVirtualKeyboardInputContext::isInputPanelVisible() const { return m_visible; }
 
-QLocale OpenKeyboardInputContext::locale() const { return m_locale; }
+QLocale XizzVirtualKeyboardInputContext::locale() const { return m_locale; }
 
-Qt::LayoutDirection OpenKeyboardInputContext::inputDirection() const
+Qt::LayoutDirection XizzVirtualKeyboardInputContext::inputDirection() const
 {
     return m_locale.textDirection();
 }
 
-void OpenKeyboardInputContext::sendCommit(const QString &text, int replaceFrom, int replaceLength)
+void XizzVirtualKeyboardInputContext::sendCommit(const QString &text, int replaceFrom, int replaceLength)
 {
     if (!m_focusObject)
         return;
@@ -177,7 +177,7 @@ void OpenKeyboardInputContext::sendCommit(const QString &text, int replaceFrom, 
     queryFocusObject();
 }
 
-void OpenKeyboardInputContext::onCommitRequested(const QString &text)
+void XizzVirtualKeyboardInputContext::onCommitRequested(const QString &text)
 {
     if (!m_focusObject)
         return;
@@ -194,7 +194,7 @@ void OpenKeyboardInputContext::onCommitRequested(const QString &text)
     }
 }
 
-void OpenKeyboardInputContext::onDeleteRequested(int chars)
+void XizzVirtualKeyboardInputContext::onDeleteRequested(int chars)
 {
     if (!m_focusObject)
         return;
@@ -210,7 +210,7 @@ void OpenKeyboardInputContext::onDeleteRequested(int chars)
     }
 }
 
-void OpenKeyboardInputContext::onHideRequested()
+void XizzVirtualKeyboardInputContext::onHideRequested()
 {
     hideInputPanel();
 }

@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 MTL
 cmake_minimum_required(VERSION 3.16)
-project(OpenKeyboard VERSION 1.0.0 LANGUAGES CXX)
+project(XizzVirtualKeyboard VERSION 1.0.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -11,82 +11,82 @@ set(CMAKE_AUTORCC ON)
 # ------------------------------------------------------------------
 # Single-artifact design: everything (bridge, input context, QML module)
 # lives in ONE shared library — the Qt platform input context plugin.
-# Qt loads it by itself when QT_IM_MODULE=openkeyboard; loading it mounts
+# Qt loads it by itself when QT_IM_MODULE=xizzvirtualkeyboard; loading it mounts
 # the embedded QML resources and runs the bridge static initializer.
 # Hosts therefore add_subdirectory() and set one env var — nothing else.
 # ------------------------------------------------------------------
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-    set(OPENKEYBOARD_DEFAULT_EXAMPLE ON)
+    set(XIZZVIRTUALKEYBOARD_DEFAULT_EXAMPLE ON)
 else()
-    set(OPENKEYBOARD_DEFAULT_EXAMPLE OFF)
+    set(XIZZVIRTUALKEYBOARD_DEFAULT_EXAMPLE OFF)
 endif()
 
-option(OPENKEYBOARD_BUILD_EXAMPLE "Build example app" ${OPENKEYBOARD_DEFAULT_EXAMPLE})
-option(OPENKEYBOARD_INSTALL "Generate install rules (installs into a Qt tree — pass -DCMAKE_INSTALL_PREFIX=<Qt dir>)" OFF)
+option(XIZZVIRTUALKEYBOARD_BUILD_EXAMPLE "Build example app" ${XIZZVIRTUALKEYBOARD_DEFAULT_EXAMPLE})
+option(XIZZVIRTUALKEYBOARD_INSTALL "Generate install rules (installs into a Qt tree — pass -DCMAKE_INSTALL_PREFIX=<Qt dir>)" OFF)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Quick Gui Qml)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Quick Gui Qml)
 
-set(OPENKEYBOARD_QML_FILES
-    OpenKeyboard/OpenInputPanel.qml
-    OpenKeyboard/OpenKeyboard.qml
-    OpenKeyboard/InputEngine.qml
-    OpenKeyboard/CandidateBar.qml
-    OpenKeyboard/styles/KeyboardStyle.qml
-    OpenKeyboard/styles/compact/Style.qml
-    OpenKeyboard/styles/default/Style.qml
-    OpenKeyboard/components/KeyButton.qml
-    OpenKeyboard/components/TextKey.qml
-    OpenKeyboard/components/FunctionKey.qml
-    OpenKeyboard/components/ActionKey.qml
-    OpenKeyboard/components/EnterKey.qml
-    OpenKeyboard/components/SpaceMicKey.qml
-    OpenKeyboard/layouts/QwertyLayout.qml
-    OpenKeyboard/layouts/SymbolsLayout.qml
-    OpenKeyboard/layouts/NumberLayout.qml
+set(XIZZVIRTUALKEYBOARD_QML_FILES
+    XizzVirtualKeyboard/OpenInputPanel.qml
+    XizzVirtualKeyboard/XizzVirtualKeyboard.qml
+    XizzVirtualKeyboard/InputEngine.qml
+    XizzVirtualKeyboard/CandidateBar.qml
+    XizzVirtualKeyboard/styles/KeyboardStyle.qml
+    XizzVirtualKeyboard/styles/compact/Style.qml
+    XizzVirtualKeyboard/styles/default/Style.qml
+    XizzVirtualKeyboard/components/KeyButton.qml
+    XizzVirtualKeyboard/components/TextKey.qml
+    XizzVirtualKeyboard/components/FunctionKey.qml
+    XizzVirtualKeyboard/components/ActionKey.qml
+    XizzVirtualKeyboard/components/EnterKey.qml
+    XizzVirtualKeyboard/components/SpaceMicKey.qml
+    XizzVirtualKeyboard/layouts/QwertyLayout.qml
+    XizzVirtualKeyboard/layouts/SymbolsLayout.qml
+    XizzVirtualKeyboard/layouts/NumberLayout.qml
 )
 
-set(OPENKEYBOARD_PLUGIN openkeyboard_platforminputcontext)
+set(XIZZVIRTUALKEYBOARD_PLUGIN xizzvirtualkeyboard_platforminputcontext)
 
 # Where hosts run their executables. The plugin is placed under
 # <this>/platforminputcontexts so Qt's application-dir plugin search finds
 # it without QT_PLUGIN_PATH. Hosts with a different runtime layout use
-# openkeyboard_deploy_to(<target>) instead.
-set(OPENKEYBOARD_RUNTIME_ROOT "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-if(NOT OPENKEYBOARD_RUNTIME_ROOT)
-    set(OPENKEYBOARD_RUNTIME_ROOT "${CMAKE_BINARY_DIR}")
+# xizzvirtualkeyboard_deploy_to(<target>) instead.
+set(XIZZVIRTUALKEYBOARD_RUNTIME_ROOT "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+if(NOT XIZZVIRTUALKEYBOARD_RUNTIME_ROOT)
+    set(XIZZVIRTUALKEYBOARD_RUNTIME_ROOT "${CMAKE_BINARY_DIR}")
 endif()
 
-set(OPENKEYBOARD_SOURCES
-    src/bridge/openkeyboardbridge.cpp
-    src/bridge/openkeyboardbridge.h
-    src/platforminputcontext/openkeyboardinputcontext.cpp
-    src/platforminputcontext/openkeyboardinputcontext.h
-    src/platforminputcontext/openkeyboardplugin.cpp
-    src/platforminputcontext/openkeyboardplugin.h
+set(XIZZVIRTUALKEYBOARD_SOURCES
+    src/bridge/xizzvirtualkeyboardbridge.cpp
+    src/bridge/xizzvirtualkeyboardbridge.h
+    src/platforminputcontext/xizzvirtualkeyboardinputcontext.cpp
+    src/platforminputcontext/xizzvirtualkeyboardinputcontext.h
+    src/platforminputcontext/xizzvirtualkeyboardplugin.cpp
+    src/platforminputcontext/xizzvirtualkeyboardplugin.h
 )
 
 if(QT_VERSION_MAJOR GREATER_EQUAL 6)
     set(BUILD_SHARED_LIBS ON)
     set(QT_NO_PRIVATE_MODULE_WARNING ON)
-    qt_add_qml_module(${OPENKEYBOARD_PLUGIN}
-        URI OpenKeyboard
+    qt_add_qml_module(${XIZZVIRTUALKEYBOARD_PLUGIN}
+        URI XizzVirtualKeyboard
         VERSION 1.0
-        QML_FILES ${OPENKEYBOARD_QML_FILES}
+        QML_FILES ${XIZZVIRTUALKEYBOARD_QML_FILES}
         RESOURCE_PREFIX "/qt/qml"
-        PLUGIN_TARGET ${OPENKEYBOARD_PLUGIN}
-        CLASS_NAME OpenKeyboardPlugin
+        PLUGIN_TARGET ${XIZZVIRTUALKEYBOARD_PLUGIN}
+        CLASS_NAME XizzVirtualKeyboardPlugin
         NO_GENERATE_PLUGIN_SOURCE   # the plugin class below is the input context plugin
     )
-    target_sources(${OPENKEYBOARD_PLUGIN} PRIVATE ${OPENKEYBOARD_SOURCES})
+    target_sources(${XIZZVIRTUALKEYBOARD_PLUGIN} PRIVATE ${XIZZVIRTUALKEYBOARD_SOURCES})
 else()
-    add_library(${OPENKEYBOARD_PLUGIN} SHARED
-        ${OPENKEYBOARD_SOURCES}
-        OpenKeyboard/openkeyboard.qrc
+    add_library(${XIZZVIRTUALKEYBOARD_PLUGIN} SHARED
+        ${XIZZVIRTUALKEYBOARD_SOURCES}
+        XizzVirtualKeyboard/xizzvirtualkeyboard.qrc
     )
 endif()
 
-target_link_libraries(${OPENKEYBOARD_PLUGIN} PRIVATE
+target_link_libraries(${XIZZVIRTUALKEYBOARD_PLUGIN} PRIVATE
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Gui
     Qt${QT_VERSION_MAJOR}::Qml
@@ -97,62 +97,62 @@ target_link_libraries(${OPENKEYBOARD_PLUGIN} PRIVATE
 # private Qt headers. Needed for compilation and for moc's preprocessing.
 find_package(Qt${QT_VERSION_MAJOR}Gui COMPONENTS Private QUIET)
 if(TARGET Qt${QT_VERSION_MAJOR}::GuiPrivate)
-    target_link_libraries(${OPENKEYBOARD_PLUGIN} PRIVATE Qt${QT_VERSION_MAJOR}::GuiPrivate)
+    target_link_libraries(${XIZZVIRTUALKEYBOARD_PLUGIN} PRIVATE Qt${QT_VERSION_MAJOR}::GuiPrivate)
 else()
     message(WARNING "Qt${QT_VERSION_MAJOR}::GuiPrivate not found — qpa/qplatforminputcontext.h unavailable, build will fail")
 endif()
 
-target_include_directories(${OPENKEYBOARD_PLUGIN} PRIVATE
+target_include_directories(${XIZZVIRTUALKEYBOARD_PLUGIN} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 # Compile-time source root for the build-tree QML import fallback injected
-# by the bridge's static initializer (see openkeyboardbridge.cpp).
-target_compile_definitions(${OPENKEYBOARD_PLUGIN} PRIVATE
-    OPENKEYBOARD_SOURCE_ROOT="${CMAKE_CURRENT_SOURCE_DIR}"
+# by the bridge's static initializer (see xizzvirtualkeyboardbridge.cpp).
+target_compile_definitions(${XIZZVIRTUALKEYBOARD_PLUGIN} PRIVATE
+    XIZZVIRTUALKEYBOARD_SOURCE_ROOT="${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
-set_target_properties(${OPENKEYBOARD_PLUGIN} PROPERTIES
+set_target_properties(${XIZZVIRTUALKEYBOARD_PLUGIN} PROPERTIES
     AUTOMOC ON
     PREFIX ""
-    LIBRARY_OUTPUT_DIRECTORY "${OPENKEYBOARD_RUNTIME_ROOT}/platforminputcontexts"
-    RUNTIME_OUTPUT_DIRECTORY "${OPENKEYBOARD_RUNTIME_ROOT}/platforminputcontexts"
+    LIBRARY_OUTPUT_DIRECTORY "${XIZZVIRTUALKEYBOARD_RUNTIME_ROOT}/platforminputcontexts"
+    RUNTIME_OUTPUT_DIRECTORY "${XIZZVIRTUALKEYBOARD_RUNTIME_ROOT}/platforminputcontexts"
 )
 
 # ------------------------------------------------------------------
 # One-line deployment for hosts whose executables do not sit in
 # CMAKE_BINARY_DIR / CMAKE_RUNTIME_OUTPUT_DIRECTORY: copies the plugin
 # next to <target>'s output so Qt's application-dir search finds it.
-#   openkeyboard_deploy_to(your_app)
+#   xizzvirtualkeyboard_deploy_to(your_app)
 # ------------------------------------------------------------------
-function(openkeyboard_deploy_to target)
-    if(NOT TARGET openkeyboard_platforminputcontext)
-        message(FATAL_ERROR "openkeyboard_deploy_to: target openkeyboard_platforminputcontext not defined — call after add_subdirectory(OpenKeyboard)")
+function(xizzvirtualkeyboard_deploy_to target)
+    if(NOT TARGET xizzvirtualkeyboard_platforminputcontext)
+        message(FATAL_ERROR "xizzvirtualkeyboard_deploy_to: target xizzvirtualkeyboard_platforminputcontext not defined — call after add_subdirectory(XizzVirtualKeyboard)")
     endif()
     add_custom_command(TARGET ${target} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_FILE:openkeyboard_platforminputcontext>
+            $<TARGET_FILE:xizzvirtualkeyboard_platforminputcontext>
             $<TARGET_FILE_DIR:${target}>/platforminputcontexts/
-        COMMENT "Deploying OpenKeyboard platform input context plugin"
+        COMMENT "Deploying XizzVirtualKeyboard platform input context plugin"
     )
 endfunction()
 
 # ------------------------------------------------------------------
 # Install = drop into a Qt tree so Qt discovers plugin + QML natively:
-#   cmake -B build -DOPENKEYBOARD_INSTALL=ON
+#   cmake -B build -DXIZZVIRTUALKEYBOARD_INSTALL=ON
 #   cmake --install build --prefix /path/to/Qt/5.15.2/gcc_64
 # ------------------------------------------------------------------
-if(OPENKEYBOARD_INSTALL)
-    install(TARGETS ${OPENKEYBOARD_PLUGIN}
+if(XIZZVIRTUALKEYBOARD_INSTALL)
+    install(TARGETS ${XIZZVIRTUALKEYBOARD_PLUGIN}
         LIBRARY DESTINATION plugins/platforminputcontexts
         RUNTIME DESTINATION plugins/platforminputcontexts
     )
-    install(DIRECTORY OpenKeyboard/ DESTINATION qml/OpenKeyboard FILES_MATCHING PATTERN "*.qml")
-    install(FILES OpenKeyboard/qmldir DESTINATION qml/OpenKeyboard)
-    install(DIRECTORY OpenKeyboard/icons DESTINATION qml/OpenKeyboard)
-    install(FILES LICENSE DESTINATION qml/OpenKeyboard)
+    install(DIRECTORY XizzVirtualKeyboard/ DESTINATION qml/XizzVirtualKeyboard FILES_MATCHING PATTERN "*.qml")
+    install(FILES XizzVirtualKeyboard/qmldir DESTINATION qml/XizzVirtualKeyboard)
+    install(DIRECTORY XizzVirtualKeyboard/icons DESTINATION qml/XizzVirtualKeyboard)
+    install(FILES LICENSE DESTINATION qml/XizzVirtualKeyboard)
 endif()
 
-if(OPENKEYBOARD_BUILD_EXAMPLE)
+if(XIZZVIRTUALKEYBOARD_BUILD_EXAMPLE)
     add_subdirectory(example)
 endif()

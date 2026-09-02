@@ -1,11 +1,11 @@
 <RCC>
     <!-- Qt5 embeds the whole module (qmldir included) into the plugin binary
-         at qrc:/qt/qml/OpenKeyboard. Qt6 uses qt_add_qml_module instead and
+         at qrc:/qt/qml/XizzVirtualKeyboard. Qt6 uses qt_add_qml_module instead and
          does not consume this file. -->
-    <qresource prefix="/qt/qml/OpenKeyboard">
+    <qresource prefix="/qt/qml/XizzVirtualKeyboard">
         <file>qmldir</file>
         <file>OpenInputPanel.qml</file>
-        <file>OpenKeyboard.qml</file>
+        <file>XizzVirtualKeyboard.qml</file>
         <file>InputEngine.qml</file>
         <file>CandidateBar.qml</file>
         <file>styles/KeyboardStyle.qml</file>
