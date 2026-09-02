@@ -1,18 +1,24 @@
 <RCC>
-    <qresource prefix="/OpenKeyboard">
+    <!-- Qt5 embeds the whole module (qmldir included) into the plugin binary
+         at qrc:/qt/qml/OpenKeyboard. Qt6 uses qt_add_qml_module instead and
+         does not consume this file. -->
+    <qresource prefix="/qt/qml/OpenKeyboard">
+        <file>qmldir</file>
         <file>OpenInputPanel.qml</file>
         <file>OpenKeyboard.qml</file>
         <file>InputEngine.qml</file>
         <file>CandidateBar.qml</file>
         <file>styles/KeyboardStyle.qml</file>
+        <file>styles/compact/Style.qml</file>
+        <file>styles/default/Style.qml</file>
         <file>components/KeyButton.qml</file>
         <file>components/TextKey.qml</file>
         <file>components/FunctionKey.qml</file>
         <file>components/ActionKey.qml</file>
-        <file>icons/space.svg</file>
-        <file>icons/enter.svg</file>
         <file>components/EnterKey.qml</file>
         <file>components/SpaceMicKey.qml</file>
+        <file>icons/space.svg</file>
+        <file>icons/enter.svg</file>
         <file>layouts/QwertyLayout.qml</file>
         <file>layouts/SymbolsLayout.qml</file>
         <file>layouts/NumberLayout.qml</file>

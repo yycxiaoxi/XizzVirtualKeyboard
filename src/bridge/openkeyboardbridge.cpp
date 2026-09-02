@@ -2,8 +2,63 @@
 // Copyright (c) 2026 MTL
 #include "openkeyboardbridge.h"
 #include <QByteArray>
+#include <QCoreApplication>
 #include <QGuiApplication>
 #include <QInputMethod>
+#include <QQmlEngine>
+
+// Wiring without host code: this whole library lives inside the platform
+// input context plugin, which Qt loads by itself when QT_IM_MODULE=openkeyboard.
+// The static initializer below runs at that dlopen — long before any engine —
+// and does two things:
+//   (a) registers instance() as the QML singleton "openKeyboardBridge" in
+//       module OpenKeyboard.Internal, so panel QML resolves it without a
+//       host-side setContextProperty;
+//   (b) injects the source root into QML2_IMPORT_PATH/QML_IMPORT_PATH so
+//       "import OpenKeyboard 1.0" resolves from the filesystem qmldir in
+//       build-tree runs (Qt5). A "qrc:" URL cannot travel through those env
+//       vars (colon collides with the list separator); Qt5 packaged hosts
+//       install the module into Qt's qml dir instead. Qt6 needs nothing
+//       here: qt_add_qml_module registers the module at plugin load and
+//       qrc:/qt/qml is a default import path.
+struct OpenKeyboardAutoSetup {
+    OpenKeyboardAutoSetup() {
+        OpenKeyboardBridge::registerQmlSingleton();
+#ifdef OPENKEYBOARD_SOURCE_ROOT
+        const QByteArray fs = QByteArrayLiteral(OPENKEYBOARD_SOURCE_ROOT);
+        if (!fs.isEmpty()) {
+            auto inject = [](const char *var, const QByteArray &addition) {
+                const QByteArray existing = qgetenv(var);
+                if (existing.isEmpty()) {
+                    qputenv(var, addition);
+                } else if (!existing.split(':').contains(addition)) {
+                    qputenv(var, existing + ':' + addition);
+                }
+            };
+            inject("QML2_IMPORT_PATH", fs);
+            inject("QML_IMPORT_PATH", fs);
+        }
+#endif
+    }
+};
+static OpenKeyboardAutoSetup s_openKeyboardAutoSetup;
+
+void OpenKeyboardBridge::registerQmlSingleton()
+{
+    static bool registered = false;
+    if (registered)
+        return;
+    registered = true;
+    // Module "OpenKeyboard.Internal" is registered purely programmatically —
+    // no qmldir file — so panel-internal QML imports it without colliding
+    // with the public OpenKeyboard module. QML type names must start
+    // uppercase, hence "OpenKeyboardBridge" (not the camelCase property
+    // style used by the old host-side context property). The instance is
+    // parented to QCoreApplication by instance() (lazily, also before the
+    // app exists).
+    qmlRegisterSingletonInstance("OpenKeyboard.Internal", 1, 0,
+                                 "OpenKeyboardBridge", instance());
+}
 
 static OpenKeyboardBridge *s_instance = nullptr;
 

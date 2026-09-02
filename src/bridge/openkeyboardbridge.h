@@ -29,6 +29,11 @@ class OPENKEYBOARD_EXPORT OpenKeyboardBridge : public QObject
 public:
     static OpenKeyboardBridge *instance();
 
+    // Publishes instance() to every QML engine as the singleton
+    // "openKeyboardBridge" in module OpenKeyboard.Internal, so panel QML
+    // resolves it without any host-side context property. Idempotent.
+    static void registerQmlSingleton();
+
     bool visible() const { return m_visible; }
     QRectF keyboardRect() const { return m_keyboardRect; }
     QString styleName() const { return m_styleName; }

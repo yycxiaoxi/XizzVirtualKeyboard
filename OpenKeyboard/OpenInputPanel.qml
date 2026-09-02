@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 MTL
 import QtQuick 2.15
+import OpenKeyboard.Internal 1.0
 
 Item {
     id: root
     focus: false
+    // Resolved from the OpenKeyboard.Internal singleton registered by the
+    // plugin itself; null (and graceful degradation) if registration is absent.
+    property var bridge: (typeof OpenKeyboardBridge !== "undefined") ? OpenKeyboardBridge : null
     property bool active: false
     property string actionLabel: "\u641c\u7d22"
     property color themeColor: "#00C7A0"
@@ -33,17 +37,17 @@ Item {
     property bool _primed: false
 
     function hide() {
-        if (openKeyboardBridge) openKeyboardBridge.hideKeyboard()
+        if (bridge) bridge.hideKeyboard()
         else { active = false; root.closed() }
     }
 
     Connections {
-        target: openKeyboardBridge
+        target: bridge
         function onVisibleChanged() {
-            if (openKeyboardBridge) {
-                root.active = openKeyboardBridge.visible
-                if (openKeyboardBridge.visible) {
-                    var hints = (typeof openKeyboardBridge.inputMethodHints !== "undefined" ? openKeyboardBridge.inputMethodHints : 0)
+            if (bridge) {
+                root.active = bridge.visible
+                if (bridge.visible) {
+                    var hints = (typeof bridge.inputMethodHints !== "undefined" ? bridge.inputMethodHints : 0)
                     if (!hints && typeof Qt.inputMethod !== "undefined") hints = (Qt.inputMethod.inputMethodHints || 0)
                     keyboardView.applyHints(hints)
                     if (!root._primed) {
@@ -52,7 +56,7 @@ Item {
                         primeTimer.start()
                     }
                     syncBufferFromFocus()
-                } else if (!openKeyboardBridge.visible) {
+                } else {
                     root._primed = false
                 }
             }
@@ -60,15 +64,15 @@ Item {
     }
 
     Connections {
-        target: openKeyboardBridge
+        target: bridge
         function onSurroundingChanged(text) { syncBufferFromFocus(text) }
         function onIsPasswordChanged() {
-            if (openKeyboardBridge && keyboardView && keyboardView.applyHints)
-                keyboardView.applyHints(openKeyboardBridge.inputMethodHints || (openKeyboardBridge.isPassword ? 0x8 : 0))
+            if (bridge && keyboardView && keyboardView.applyHints)
+                keyboardView.applyHints(bridge.inputMethodHints || (bridge.isPassword ? 0x8 : 0))
         }
         function onInputMethodHintsChanged() {
-            if (openKeyboardBridge && keyboardView && keyboardView.applyHints)
-                keyboardView.applyHints(openKeyboardBridge.inputMethodHints || 0)
+            if (bridge && keyboardView && keyboardView.applyHints)
+                keyboardView.applyHints(bridge.inputMethodHints || 0)
         }
     }
 
@@ -76,7 +80,7 @@ Item {
         target: Qt.inputMethod
         ignoreUnknownSignals: true
         function onVisibleChanged() {
-            if (!openKeyboardBridge || !openKeyboardBridge.visible)
+            if (!bridge || !bridge.visible)
                 root.active = Qt.inputMethod.visible
         }
     }
@@ -87,7 +91,7 @@ Item {
         actionLabel: root.actionLabel
         actionColor: root.themeColor
         showCandidateBar: root.showCandidateBar
-        bridge: openKeyboardBridge
+        bridge: root.bridge
         onActionTriggered: {
             var t = ""
             if (typeof Qt.inputMethod !== "undefined" && Qt.inputMethod.surroundingText !== undefined)
@@ -98,7 +102,7 @@ Item {
     }
 
     Component.onCompleted: {
-        if (openKeyboardBridge) root.active = openKeyboardBridge.visible
+        if (bridge) root.active = bridge.visible
         if (typeof Qt.inputMethod !== "undefined" && Qt.inputMethod.visible) root.active = true
     }
 }
