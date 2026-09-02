@@ -221,23 +221,6 @@ void XizzVirtualKeyboardInputContext::onSubmitRequested()
 {
     if (!m_focusObject)
         return;
-    bool multiLine = false;
-    if (m_hints & Qt::ImhMultiLine)
-        multiLine = true;
-    if (!multiLine) {
-        const QMetaObject *mo = m_focusObject->metaObject();
-        if (mo->indexOfProperty("wrapMode") != -1)
-            multiLine = true;
-        if (!multiLine) {
-            const QByteArray cn = mo->className();
-            if (cn.contains("TextArea") || cn.contains("TextEdit"))
-                multiLine = true;
-        }
-    }
-    if (multiLine) {
-        sendCommit(QStringLiteral("\n"), 0, 0);
-        return;
-    }
     QKeyEvent press(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier, QStringLiteral("\n"));
     QKeyEvent release(QEvent::KeyRelease, Qt::Key_Return, Qt::NoModifier, QStringLiteral("\n"));
     QGuiApplication::sendEvent(m_focusObject, &press);
