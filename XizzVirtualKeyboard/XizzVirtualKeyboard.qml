@@ -103,6 +103,7 @@ Rectangle {
                 upperCase: inputEngine.upperCase
                 onKeyPressed: inputEngine.commit(value)
                 onHintKeyPressed: inputEngine.commitRaw(value)
+                onSubmitPressed: inputEngine.submit()
                 onShiftPressed: inputEngine.toggleShift()
                 onBackspacePressed: inputEngine.backspace()
                 onSwitchToSymbols: inputEngine.page = 1
@@ -110,11 +111,13 @@ Rectangle {
             }
             SymbolsLayout {
                 onKeyPressed: inputEngine.commit(value)
+                onSubmitPressed: inputEngine.submit()
                 onBackspacePressed: inputEngine.backspace()
                 onSwitchBack: inputEngine.page = 0
             }
             NumberLayout {
                 onKeyPressed: inputEngine.commit(value)
+                onSubmitPressed: inputEngine.submit()
                 onBackspacePressed: inputEngine.backspace()
                 onSwitchBack: inputEngine.page = 0
                 onSwitchToSymbols: inputEngine.page = 1

@@ -11,6 +11,7 @@ Item {
 
     property bool upperCase: false
     signal keyPressed(string value)
+    signal submitPressed()
     signal shiftPressed()
     signal backspacePressed()
     signal switchToSymbols()
@@ -179,8 +180,7 @@ Item {
             Layout.fillWidth: true
             Layout.preferredWidth: 78
             Layout.fillHeight: true
-            onPressed: root.keyPressed("
-")
+            onPressed: root.submitPressed()
         }
         }
     }

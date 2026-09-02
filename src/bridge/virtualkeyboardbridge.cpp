@@ -129,6 +129,11 @@ void XizzVirtualKeyboardBridge::hideKeyboard()
     emit hideRequested();
 }
 
+void XizzVirtualKeyboardBridge::submit()
+{
+    emit submitRequested();
+}
+
 void XizzVirtualKeyboardBridge::setSurroundingText(const QString &text)
 {
     if (m_surroundingText == text)

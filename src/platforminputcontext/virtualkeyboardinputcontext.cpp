@@ -18,6 +18,8 @@ XizzVirtualKeyboardInputContext::XizzVirtualKeyboardInputContext(QObject *parent
             this, &XizzVirtualKeyboardInputContext::onDeleteRequested);
     connect(bridge, &XizzVirtualKeyboardBridge::hideRequested,
             this, &XizzVirtualKeyboardInputContext::onHideRequested);
+    connect(bridge, &XizzVirtualKeyboardBridge::submitRequested,
+            this, &XizzVirtualKeyboardInputContext::onSubmitRequested);
 }
 
 XizzVirtualKeyboardInputContext::~XizzVirtualKeyboardInputContext() = default;
@@ -212,5 +214,16 @@ void XizzVirtualKeyboardInputContext::onDeleteRequested(int chars)
 
 void XizzVirtualKeyboardInputContext::onHideRequested()
 {
+    hideInputPanel();
+}
+
+void XizzVirtualKeyboardInputContext::onSubmitRequested()
+{
+    if (!m_focusObject)
+        return;
+    QKeyEvent press(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier, QStringLiteral("\n"));
+    QKeyEvent release(QEvent::KeyRelease, Qt::Key_Return, Qt::NoModifier, QStringLiteral("\n"));
+    QGuiApplication::sendEvent(m_focusObject, &press);
+    QGuiApplication::sendEvent(m_focusObject, &release);
     hideInputPanel();
 }

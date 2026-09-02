@@ -55,4 +55,9 @@ QtObject {
         }
     }
     function commitCandidate(text) { clearBuffer(); commit(text) }
+
+    function submit() {
+        if (bridge && bridge.submit) bridge.submit()
+        else if (bridge && bridge.hideKeyboard) bridge.hideKeyboard()
+    }
 }

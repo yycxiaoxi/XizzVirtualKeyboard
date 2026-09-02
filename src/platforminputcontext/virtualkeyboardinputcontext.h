@@ -29,6 +29,7 @@ public:
     void setFocusObject(QObject *object) override;
 
 private slots:
+    void onSubmitRequested();
     void onCommitRequested(const QString &text);
     void onDeleteRequested(int chars);
     void onHideRequested();

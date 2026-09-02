@@ -47,6 +47,7 @@ public:
     Q_INVOKABLE void commitText(const QString &text);
     Q_INVOKABLE void deleteSurrounding(int chars);
     Q_INVOKABLE void hideKeyboard();
+    Q_INVOKABLE void submit();
     Q_INVOKABLE void setSurroundingText(const QString &text);
     QString surroundingText() const { return m_surroundingText; }
     bool isPassword() const { return m_isPassword; }
@@ -62,6 +63,7 @@ signals:
     void commitRequested(const QString &text);
     void deleteRequested(int chars);
     void hideRequested();
+    void submitRequested();
     void surroundingChanged(const QString &text);
     void isPasswordChanged();
     void inputMethodHintsChanged();
