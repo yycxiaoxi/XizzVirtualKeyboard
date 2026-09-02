@@ -1,0 +1,15 @@
+module OpenKeyboard
+singleton CompactStyle 1.0 styles/compact/Style.qml
+singleton DefaultStyle 1.0 styles/default/Style.qml
+singleton KeyboardStyle 1.0 styles/KeyboardStyle.qml
+CandidateBar 1.0 CandidateBar.qml
+InputEngine 1.0 InputEngine.qml
+OpenInputPanel 1.0 OpenInputPanel.qml
+OpenKeyboard 1.0 OpenKeyboard.qml
+KeyButton 1.0 components/KeyButton.qml
+TextKey 1.0 components/TextKey.qml
+FunctionKey 1.0 components/FunctionKey.qml
+ActionKey 1.0 components/ActionKey.qml
+QwertyLayout 1.0 layouts/QwertyLayout.qml
+SymbolsLayout 1.0 layouts/SymbolsLayout.qml
+NumberLayout 1.0 layouts/NumberLayout.qml

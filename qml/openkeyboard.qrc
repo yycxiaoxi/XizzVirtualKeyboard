@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/OpenKeyboard">
+        <file>OpenInputPanel.qml</file>
+        <file>OpenKeyboard.qml</file>
+        <file>InputEngine.qml</file>
+        <file>CandidateBar.qml</file>
+        <file>styles/KeyboardStyle.qml</file>
+        <file>components/KeyButton.qml</file>
+        <file>components/TextKey.qml</file>
+        <file>components/FunctionKey.qml</file>
+        <file>components/ActionKey.qml</file>
+        <file>icons/space.svg</file>
+        <file>icons/enter.svg</file>
+        <file>components/EnterKey.qml</file>
+        <file>components/SpaceMicKey.qml</file>
+        <file>layouts/QwertyLayout.qml</file>
+        <file>layouts/SymbolsLayout.qml</file>
+        <file>layouts/NumberLayout.qml</file>
+    </qresource>
+</RCC>

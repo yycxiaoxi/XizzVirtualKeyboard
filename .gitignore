@@ -1,0 +1,5 @@
+
+.zcode/
+build/
+*.user
+*.autosave
