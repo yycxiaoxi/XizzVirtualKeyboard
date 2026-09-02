@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 MTL
-#include "xizzvirtualkeyboardinputcontext.h"
-#include "bridge/xizzvirtualkeyboardbridge.h"
+#include "virtualkeyboardinputcontext.h"
+#include "bridge/virtualkeyboardbridge.h"
 #include <QGuiApplication>
 #include <QScreen>
 #include <QInputMethodEvent>

@@ -58,12 +58,12 @@ if(NOT XIZZVIRTUALKEYBOARD_RUNTIME_ROOT)
 endif()
 
 set(XIZZVIRTUALKEYBOARD_SOURCES
-    src/bridge/xizzvirtualkeyboardbridge.cpp
-    src/bridge/xizzvirtualkeyboardbridge.h
-    src/platforminputcontext/xizzvirtualkeyboardinputcontext.cpp
-    src/platforminputcontext/xizzvirtualkeyboardinputcontext.h
-    src/platforminputcontext/xizzvirtualkeyboardplugin.cpp
-    src/platforminputcontext/xizzvirtualkeyboardplugin.h
+    src/bridge/virtualkeyboardbridge.cpp
+    src/bridge/virtualkeyboardbridge.h
+    src/platforminputcontext/virtualkeyboardinputcontext.cpp
+    src/platforminputcontext/virtualkeyboardinputcontext.h
+    src/platforminputcontext/virtualkeyboardplugin.cpp
+    src/platforminputcontext/virtualkeyboardplugin.h
 )
 
 if(QT_VERSION_MAJOR GREATER_EQUAL 6)
@@ -82,7 +82,7 @@ if(QT_VERSION_MAJOR GREATER_EQUAL 6)
 else()
     add_library(${XIZZVIRTUALKEYBOARD_PLUGIN} SHARED
         ${XIZZVIRTUALKEYBOARD_SOURCES}
-        XizzVirtualKeyboard/xizzvirtualkeyboard.qrc
+        XizzVirtualKeyboard/virtualkeyboard.qrc
     )
 endif()
 
@@ -107,7 +107,7 @@ target_include_directories(${XIZZVIRTUALKEYBOARD_PLUGIN} PRIVATE
 )
 
 # Compile-time source root for the build-tree QML import fallback injected
-# by the bridge's static initializer (see xizzvirtualkeyboardbridge.cpp).
+# by the bridge's static initializer (see virtualkeyboardbridge.cpp).
 target_compile_definitions(${XIZZVIRTUALKEYBOARD_PLUGIN} PRIVATE
     XIZZVIRTUALKEYBOARD_SOURCE_ROOT="${CMAKE_CURRENT_SOURCE_DIR}"
 )

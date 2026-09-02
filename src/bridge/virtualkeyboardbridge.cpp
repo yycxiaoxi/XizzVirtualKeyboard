@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 MTL
-#include "xizzvirtualkeyboardbridge.h"
+#include "virtualkeyboardbridge.h"
 #include <QByteArray>
 #include <QCoreApplication>
 #include <QGuiApplication>

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // Copyright (c) 2026 MTL
-#include "xizzvirtualkeyboardplugin.h"
-#include "xizzvirtualkeyboardinputcontext.h"
+#include "virtualkeyboardplugin.h"
+#include "virtualkeyboardinputcontext.h"
 
 XizzVirtualKeyboardPlugin::XizzVirtualKeyboardPlugin(QObject *parent)
     : QPlatformInputContextPlugin(parent) {}

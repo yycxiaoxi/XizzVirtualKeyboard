@@ -5,10 +5,10 @@
 #include <QRectF>
 #include <QLocale>
 
-#if __has_include("xizzvirtualkeyboard_export.h")
-#include "xizzvirtualkeyboard_export.h"
-#elif __has_include("XizzVirtualKeyboard/xizzvirtualkeyboard_export.h")
-#include "XizzVirtualKeyboard/xizzvirtualkeyboard_export.h"
+#if __has_include("virtualkeyboard_export.h")
+#include "virtualkeyboard_export.h"
+#elif __has_include("XizzVirtualKeyboard/virtualkeyboard_export.h")
+#include "XizzVirtualKeyboard/virtualkeyboard_export.h"
 #else
 #ifndef XIZZVIRTUALKEYBOARD_EXPORT
 #define XIZZVIRTUALKEYBOARD_EXPORT
