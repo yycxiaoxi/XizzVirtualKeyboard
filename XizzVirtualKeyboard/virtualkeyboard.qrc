@@ -8,7 +8,6 @@
         <file>XizzVirtualKeyboard.qml</file>
         <file>InputEngine.qml</file>
         <file>CandidateBar.qml</file>
-        <file>ScrollArea.qml</file>
         <file>styles/KeyboardStyle.qml</file>
         <file>styles/compact/Style.qml</file>
         <file>styles/default/Style.qml</file>

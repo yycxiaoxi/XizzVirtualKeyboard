@@ -32,7 +32,6 @@ set(XIZZVIRTUALKEYBOARD_QML_FILES
     XizzVirtualKeyboard/XizzVirtualKeyboard.qml
     XizzVirtualKeyboard/InputEngine.qml
     XizzVirtualKeyboard/CandidateBar.qml
-    XizzVirtualKeyboard/ScrollArea.qml
     XizzVirtualKeyboard/styles/KeyboardStyle.qml
     XizzVirtualKeyboard/styles/compact/Style.qml
     XizzVirtualKeyboard/styles/default/Style.qml

@@ -37,14 +37,11 @@ private slots:
 private:
     void sendCommit(const QString &text, int replaceFrom = 0, int replaceLength = 0);
     void queryFocusObject();
-    void scheduleScrollIntoView();
-    void scrollFocusInputIntoView();
 
     QPointer<QObject> m_focusObject;
     bool m_visible = false;
     bool m_animating = false;
     bool m_submitting = false;
-    bool m_scrollScheduled = false;
     QRectF m_keyboardRect;
     QLocale m_locale;
     Qt::InputMethodHints m_hints = Qt::ImhNone;
