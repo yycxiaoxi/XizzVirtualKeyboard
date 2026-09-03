@@ -3,6 +3,7 @@
 #include "virtualkeyboardinputcontext.h"
 #include "bridge/virtualkeyboardbridge.h"
 #include <QGuiApplication>
+#include <QDebug>
 #include <QMetaMethod>
 #include <QMetaProperty>
 #include <QScreen>
@@ -22,6 +23,9 @@ XizzVirtualKeyboardInputContext::XizzVirtualKeyboardInputContext(QObject *parent
             this, &XizzVirtualKeyboardInputContext::onHideRequested);
     connect(bridge, &XizzVirtualKeyboardBridge::submitRequested,
             this, &XizzVirtualKeyboardInputContext::onSubmitRequested);
+    // feat-333: 插件版本构建戳。真机日志凭此一句可辨 .so 新旧(feat-332 第三道门、
+    // feat-331 focusClearRequested 是否在运行包内), 不再靠告警反推。
+    qInfo() << "[xizz] inputcontext build feat-333";
 }
 
 XizzVirtualKeyboardInputContext::~XizzVirtualKeyboardInputContext() = default;
