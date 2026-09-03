@@ -185,6 +185,9 @@ void XizzVirtualKeyboardInputContext::hideInputPanel()
     XizzVirtualKeyboardBridge::instance()->setVisible(false);
     XizzVirtualKeyboardBridge::instance()->setKeyboardRect(m_keyboardRect);
     clearFocusState();
+    // feat-331: 真收起才到此处(幂等守卫上), 通知宿主可顺手清旧输入焦点。
+    // 库只发信号, 真正清焦点由宿主 QML 经 callLater 做(防派发栈重入/抢新焦点)。
+    XizzVirtualKeyboardBridge::instance()->requestFocusClear();
     emitInputPanelVisibleChanged();
     emitKeyboardRectChanged();
 }

@@ -48,6 +48,9 @@ public:
     Q_INVOKABLE void deleteSurrounding(int chars);
     Q_INVOKABLE void hideKeyboard();
     Q_INVOKABLE void submit();
+    // feat-331: 通知宿主"键盘已真收起, 可顺手清旧输入焦点"。
+    // 库只发意图不碰宿主窗口焦点(插件拿不到 QML engine, C++ 直接清易重入且抢新焦点)。
+    Q_INVOKABLE void requestFocusClear();
     Q_INVOKABLE void setSurroundingText(const QString &text);
     QString surroundingText() const { return m_surroundingText; }
     bool isPassword() const { return m_isPassword; }
@@ -64,6 +67,8 @@ signals:
     void deleteRequested(int chars);
     void hideRequested();
     void submitRequested();
+    // feat-331: hideInputPanel 真收起时发射, 宿主订阅后经 callLater 清旧焦点
+    void focusClearRequested();
     void surroundingChanged(const QString &text);
     void isPasswordChanged();
     void inputMethodHintsChanged();

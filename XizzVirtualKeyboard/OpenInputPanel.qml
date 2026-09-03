@@ -13,6 +13,9 @@ Item {
     property color themeColor: "#00C7A0"
     property bool showCandidateBar: true
     signal closed()
+    // feat-331: 键盘真收起时 bridge.focusClearRequested 的面板级转发。
+    // 宿主订阅此信号清旧输入焦点, 不直连 Internal 单例。
+    signal focusClearRequested()
 
     width: parent ? parent.width : 800
     height: keyboardView.implicitHeight
@@ -77,6 +80,8 @@ Item {
             if (bridge && keyboardView && keyboardView.applyHints)
                 keyboardView.applyHints(bridge.inputMethodHints || 0)
         }
+        // feat-331: 转发键盘真收起意图, 宿主订阅后清旧输入焦点
+        function onFocusClearRequested() { root.focusClearRequested() }
     }
 
     // feat-329: Qt.inputMethod.visible 兜底只在 bridge 缺失时生效。

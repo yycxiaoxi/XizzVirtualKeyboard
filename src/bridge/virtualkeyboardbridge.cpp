@@ -129,6 +129,11 @@ void XizzVirtualKeyboardBridge::hideKeyboard()
     emit hideRequested();
 }
 
+void XizzVirtualKeyboardBridge::requestFocusClear()
+{
+    emit focusClearRequested();
+}
+
 void XizzVirtualKeyboardBridge::submit()
 {
     emit submitRequested();
