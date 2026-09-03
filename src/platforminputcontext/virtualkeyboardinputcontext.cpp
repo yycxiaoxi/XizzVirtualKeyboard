@@ -3,6 +3,7 @@
 #include "virtualkeyboardinputcontext.h"
 #include "bridge/virtualkeyboardbridge.h"
 #include <QGuiApplication>
+#include <QMetaMethod>
 #include <QMetaProperty>
 #include <QScreen>
 #include <QInputMethodEvent>
@@ -62,7 +63,18 @@ static bool isTextInput(QObject *object)
         if (ro.isValid() && ro.toBool())
             return false;
     }
-    return true;
+    // feat-332: 光有 inputMethodHints 属性不够, 还得真能响应 inputMethodQuery 元调用。
+    // QQuickSpinBox/QQuickComboBox 本体带 hints 属性(透传给内部编辑器用), 但头文件里
+    // 无 Q_INVOKABLE inputMethodQuery, QInputMethod::queryFocusObject 经 invokeMethod
+    // 查它必报 "No such method ...::inputMethodQuery" 且拿不到值。按方法名(而非全签名)
+    // 遍历元对象(含继承链, TextField 靠继承 QQuickTextInput 命中), 找不到判非文本。
+    for (const QMetaObject *m = mo; m; m = m->superClass()) {
+        for (int i = 0; i < m->methodCount(); ++i) {
+            if (m->method(i).name() == QByteArrayLiteral("inputMethodQuery"))
+                return true;
+        }
+    }
+    return false;
 }
 
 void XizzVirtualKeyboardInputContext::setFocusObject(QObject *object)
