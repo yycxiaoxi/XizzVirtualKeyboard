@@ -3,6 +3,7 @@
 #include "virtualkeyboardinputcontext.h"
 #include "bridge/virtualkeyboardbridge.h"
 #include <QGuiApplication>
+#include <QMetaProperty>
 #include <QScreen>
 #include <QInputMethodEvent>
 #include <QInputMethod>
@@ -46,7 +47,22 @@ static bool isKeyboardChrome(QObject *object)
 
 static bool isTextInput(QObject *object)
 {
-    return object && object->metaObject()->indexOfProperty("inputMethodHints") != -1;
+    if (!object)
+        return false;
+    const QMetaObject *mo = object->metaObject();
+    if (mo->indexOfProperty("inputMethodHints") == -1)
+        return false;
+    // feat-329: 只读文本(如 SpinBox 不可编辑态)不算输入入口, 避免点到即弹键盘
+    const int roIdx = mo->indexOfProperty("readOnly");
+    if (roIdx != -1) {
+        QVariant ro;
+        const QMetaProperty prop = mo->property(roIdx);
+        if (prop.isReadable())
+            ro = object->property("readOnly");
+        if (ro.isValid() && ro.toBool())
+            return false;
+    }
+    return true;
 }
 
 void XizzVirtualKeyboardInputContext::setFocusObject(QObject *object)
@@ -56,6 +72,8 @@ void XizzVirtualKeyboardInputContext::setFocusObject(QObject *object)
     if (object && !isTextInput(object)) {
         if (m_visible)
             hideInputPanel();
+        else
+            clearFocusState();
         if (m_focusObject) {
             m_focusObject = nullptr;
             QPlatformInputContext::setFocusObject(nullptr);
@@ -166,8 +184,22 @@ void XizzVirtualKeyboardInputContext::hideInputPanel()
     m_keyboardRect = QRectF();
     XizzVirtualKeyboardBridge::instance()->setVisible(false);
     XizzVirtualKeyboardBridge::instance()->setKeyboardRect(m_keyboardRect);
+    clearFocusState();
     emitInputPanelVisibleChanged();
     emitKeyboardRectChanged();
+}
+
+void XizzVirtualKeyboardInputContext::clearFocusState()
+{
+    // feat-329: 焦点离开文本输入时清残留, 避免密码掩码圆点残留在预览条下次闪现。幂等。
+    m_surroundingText.clear();
+    m_hints = Qt::ImhNone;
+    m_cursorPosition = 0;
+    m_anchorPosition = 0;
+    auto *bridge = XizzVirtualKeyboardBridge::instance();
+    bridge->setSurroundingText(QString());
+    // setInputMethodHints(0) 连带 isPassword=false, 预览条掩码一并解除
+    bridge->setInputMethodHints(int(Qt::ImhNone));
 }
 
 bool XizzVirtualKeyboardInputContext::isInputPanelVisible() const { return m_visible; }

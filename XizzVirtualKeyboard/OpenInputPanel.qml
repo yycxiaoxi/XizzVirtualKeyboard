@@ -56,6 +56,11 @@ Item {
                     syncBufferFromFocus()
                 } else {
                     root._primed = false
+                    // feat-329: 面板收起只清预览, 不删真实文本。
+                    // C++ 侧 hideInputPanel 已清 bridge.surroundingText, 此处再清
+                    // engine.buffer 本地镜像(不走 deleteSurrounding), 避免旧圆点下次闪现。
+                    if (keyboardView && keyboardView.engine)
+                        keyboardView.engine.clearPreview()
                 }
             }
         }
@@ -74,12 +79,18 @@ Item {
         }
     }
 
+    // feat-329: Qt.inputMethod.visible 兜底只在 bridge 缺失时生效。
+    // bridge 存在时它是唯一真相源: bridge=false 即强制收起, 避免 Qt 侧
+    // visible 落后把已 hide 的面板重新点亮(如下拉/comboBox 场景的"复活")。
     Connections {
         target: Qt.inputMethod
         ignoreUnknownSignals: true
         function onVisibleChanged() {
-            if (!bridge || !bridge.visible)
+            if (!bridge) {
                 root.active = Qt.inputMethod.visible
+            } else if (!bridge.visible) {
+                root.active = false
+            }
         }
     }
 
@@ -92,6 +103,6 @@ Item {
 
     Component.onCompleted: {
         if (bridge) root.active = bridge.visible
-        if (typeof Qt.inputMethod !== "undefined" && Qt.inputMethod.visible) root.active = true
+        // feat-329: bridge 存在时不以 Qt.inputMethod.visible 点亮(见上), 避免启动即误弹
     }
 }

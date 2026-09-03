@@ -37,6 +37,7 @@ private slots:
 private:
     void sendCommit(const QString &text, int replaceFrom = 0, int replaceLength = 0);
     void queryFocusObject();
+    void clearFocusState();
 
     QPointer<QObject> m_focusObject;
     bool m_visible = false;
