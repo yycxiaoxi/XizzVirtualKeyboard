@@ -22,7 +22,10 @@ ColumnLayout {
         TextKey { Layout.fillWidth: true; Layout.preferredHeight: 46; keyChar: "1"; onPressed: root.keyPressed(keyChar) }
         TextKey { Layout.fillWidth: true; Layout.preferredHeight: 46; keyChar: "2"; onPressed: root.keyPressed(keyChar) }
         TextKey { Layout.fillWidth: true; Layout.preferredHeight: 46; keyChar: "3"; onPressed: root.keyPressed(keyChar) }
-        FunctionKey { Layout.preferredWidth: 52; Layout.fillHeight: true; Layout.preferredHeight: 46; keyText: "\u232b"; autoRepeat: true; onPressed: root.backspacePressed(); onClicked: root.backspacePressed() }
+        // feat-336b: 退格只接 onPressed(+autoRepeat 管长按)。之前同时接 onClicked,
+        // 每次点按删 2 字("0.05000" 4 下点空, 用户报自动删完); Qwerty/Symbols
+        // 本来就只有 onPressed, 此处对齐。
+        FunctionKey { Layout.preferredWidth: 52; Layout.fillHeight: true; Layout.preferredHeight: 46; keyText: "\u232b"; autoRepeat: true; onPressed: root.backspacePressed() }
     }
     // Row 2: : | 4 5 6 | .
     RowLayout {
