@@ -54,6 +54,11 @@ QtObject {
             }
         }
     }
+    // feat-329: 面板收起时只清本地预览镜像, 不触碰焦点框真实文本。
+    // 与 clearBuffer(×键: 清预览+删真实输入)区分开。
+    function clearPreview() {
+        buffer = ""
+    }
     function commitCandidate(text) { clearBuffer(); commit(text) }
 
     function submit() {

@@ -3,6 +3,9 @@
 #include "virtualkeyboardinputcontext.h"
 #include "bridge/virtualkeyboardbridge.h"
 #include <QGuiApplication>
+#include <QDebug>
+#include <QMetaMethod>
+#include <QMetaProperty>
 #include <QScreen>
 #include <QInputMethodEvent>
 #include <QInputMethod>
@@ -20,6 +23,9 @@ XizzVirtualKeyboardInputContext::XizzVirtualKeyboardInputContext(QObject *parent
             this, &XizzVirtualKeyboardInputContext::onHideRequested);
     connect(bridge, &XizzVirtualKeyboardBridge::submitRequested,
             this, &XizzVirtualKeyboardInputContext::onSubmitRequested);
+    // feat-333: 插件版本构建戳。真机日志凭此一句可辨 .so 新旧(feat-332 第三道门、
+    // feat-331 focusClearRequested 是否在运行包内), 不再靠告警反推。
+    qInfo() << "[xizz] inputcontext build feat-333";
 }
 
 XizzVirtualKeyboardInputContext::~XizzVirtualKeyboardInputContext() = default;
@@ -46,7 +52,33 @@ static bool isKeyboardChrome(QObject *object)
 
 static bool isTextInput(QObject *object)
 {
-    return object && object->metaObject()->indexOfProperty("inputMethodHints") != -1;
+    if (!object)
+        return false;
+    const QMetaObject *mo = object->metaObject();
+    if (mo->indexOfProperty("inputMethodHints") == -1)
+        return false;
+    // feat-329: 只读文本(如 SpinBox 不可编辑态)不算输入入口, 避免点到即弹键盘
+    const int roIdx = mo->indexOfProperty("readOnly");
+    if (roIdx != -1) {
+        QVariant ro;
+        const QMetaProperty prop = mo->property(roIdx);
+        if (prop.isReadable())
+            ro = object->property("readOnly");
+        if (ro.isValid() && ro.toBool())
+            return false;
+    }
+    // feat-332: 光有 inputMethodHints 属性不够, 还得真能响应 inputMethodQuery 元调用。
+    // QQuickSpinBox/QQuickComboBox 本体带 hints 属性(透传给内部编辑器用), 但头文件里
+    // 无 Q_INVOKABLE inputMethodQuery, QInputMethod::queryFocusObject 经 invokeMethod
+    // 查它必报 "No such method ...::inputMethodQuery" 且拿不到值。按方法名(而非全签名)
+    // 遍历元对象(含继承链, TextField 靠继承 QQuickTextInput 命中), 找不到判非文本。
+    for (const QMetaObject *m = mo; m; m = m->superClass()) {
+        for (int i = 0; i < m->methodCount(); ++i) {
+            if (m->method(i).name() == QByteArrayLiteral("inputMethodQuery"))
+                return true;
+        }
+    }
+    return false;
 }
 
 void XizzVirtualKeyboardInputContext::setFocusObject(QObject *object)
@@ -56,6 +88,8 @@ void XizzVirtualKeyboardInputContext::setFocusObject(QObject *object)
     if (object && !isTextInput(object)) {
         if (m_visible)
             hideInputPanel();
+        else
+            clearFocusState();
         if (m_focusObject) {
             m_focusObject = nullptr;
             QPlatformInputContext::setFocusObject(nullptr);
@@ -166,8 +200,25 @@ void XizzVirtualKeyboardInputContext::hideInputPanel()
     m_keyboardRect = QRectF();
     XizzVirtualKeyboardBridge::instance()->setVisible(false);
     XizzVirtualKeyboardBridge::instance()->setKeyboardRect(m_keyboardRect);
+    clearFocusState();
+    // feat-331: 真收起才到此处(幂等守卫上), 通知宿主可顺手清旧输入焦点。
+    // 库只发信号, 真正清焦点由宿主 QML 经 callLater 做(防派发栈重入/抢新焦点)。
+    XizzVirtualKeyboardBridge::instance()->requestFocusClear();
     emitInputPanelVisibleChanged();
     emitKeyboardRectChanged();
+}
+
+void XizzVirtualKeyboardInputContext::clearFocusState()
+{
+    // feat-329: 焦点离开文本输入时清残留, 避免密码掩码圆点残留在预览条下次闪现。幂等。
+    m_surroundingText.clear();
+    m_hints = Qt::ImhNone;
+    m_cursorPosition = 0;
+    m_anchorPosition = 0;
+    auto *bridge = XizzVirtualKeyboardBridge::instance();
+    bridge->setSurroundingText(QString());
+    // setInputMethodHints(0) 连带 isPassword=false, 预览条掩码一并解除
+    bridge->setInputMethodHints(int(Qt::ImhNone));
 }
 
 bool XizzVirtualKeyboardInputContext::isInputPanelVisible() const { return m_visible; }
