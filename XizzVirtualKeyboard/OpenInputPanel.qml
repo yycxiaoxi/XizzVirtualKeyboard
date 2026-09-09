@@ -99,6 +99,14 @@ Item {
         }
     }
 
+    // 面板按压地板：键帽之外的空隙（键距/预览条空白/内边距）原先会把按压
+    // 透传到面板下层的控件与页面（点 a 键附近落到键盘外即触发底下菜单跳页）。
+    // 声明在 keyboardView 之前 = 垫底：键帽/按钮在上层照常消费，落到空隙的
+    // 按压在此终止，不再穿出键盘面板。
+    MouseArea {
+        anchors.fill: parent
+    }
+
     XizzVirtualKeyboard {
         id: keyboardView
         width: root.width
