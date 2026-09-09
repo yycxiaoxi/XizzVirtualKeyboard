@@ -33,6 +33,7 @@ private slots:
     void onCommitRequested(const QString &text);
     void onDeleteRequested(int chars);
     void onHideRequested();
+    void onClearAllRequested();
 
 private:
     void sendCommit(const QString &text, int replaceFrom = 0, int replaceLength = 0);

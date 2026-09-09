@@ -124,6 +124,11 @@ void XizzVirtualKeyboardBridge::deleteSurrounding(int chars)
     emit deleteRequested(chars);
 }
 
+void XizzVirtualKeyboardBridge::clearAll()
+{
+    emit clearAllRequested();
+}
+
 void XizzVirtualKeyboardBridge::hideKeyboard()
 {
     emit hideRequested();

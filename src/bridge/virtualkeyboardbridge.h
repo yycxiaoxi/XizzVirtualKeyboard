@@ -46,6 +46,9 @@ public:
 
     Q_INVOKABLE void commitText(const QString &text);
     Q_INVOKABLE void deleteSurrounding(int chars);
+    // ×键整框清空: 与 deleteSurrounding(循环退格, 受光标位置限制)区分,
+    // 单事件替换整个文本, 光标在中段/开头也能清干净。
+    Q_INVOKABLE void clearAll();
     Q_INVOKABLE void hideKeyboard();
     Q_INVOKABLE void submit();
     // feat-331: 通知宿主"键盘已真收起, 可顺手清旧输入焦点"。
@@ -65,6 +68,7 @@ signals:
     void localeChanged();
     void commitRequested(const QString &text);
     void deleteRequested(int chars);
+    void clearAllRequested();
     void hideRequested();
     void submitRequested();
     // feat-331: hideInputPanel 真收起时发射, 宿主订阅后经 callLater 清旧焦点

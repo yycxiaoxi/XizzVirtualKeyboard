@@ -43,16 +43,12 @@ QtObject {
     }
 
     function clearBuffer() {
-        // Clear preview and also delete real input content via surrounding text length
-        if (buffer.length > 0) {
-            // Delete the whole buffer from the focused TextField via repeated backspace
-            // Use bridge's signal chain if available, else fallback to local buffer only
-            var n = buffer.length
-            buffer = ""
-            for (var i = 0; i < n; ++i) {
-                if (bridge && bridge.deleteSurrounding) bridge.deleteSurrounding(1)
-            }
-        }
+        // ×键清预览+清真实输入: 一发整框清空(bridge.clearAll), 不循环退格 ——
+        // 循环退格按光标位置逐个删, 光标在文本中段时残留光标后内容,
+        // 光标在开头时整个无动作。
+        buffer = ""
+        if (bridge && bridge.clearAll) bridge.clearAll()
+        else console.warn("XizzVirtualKeyboard: bridge not connected")
     }
     // feat-329: 面板收起时只清本地预览镜像, 不触碰焦点框真实文本。
     // 与 clearBuffer(×键: 清预览+删真实输入)区分开。

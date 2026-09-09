@@ -23,9 +23,11 @@ XizzVirtualKeyboardInputContext::XizzVirtualKeyboardInputContext(QObject *parent
             this, &XizzVirtualKeyboardInputContext::onHideRequested);
     connect(bridge, &XizzVirtualKeyboardBridge::submitRequested,
             this, &XizzVirtualKeyboardInputContext::onSubmitRequested);
+    connect(bridge, &XizzVirtualKeyboardBridge::clearAllRequested,
+            this, &XizzVirtualKeyboardInputContext::onClearAllRequested);
     // feat-333: 插件版本构建戳。真机日志凭此一句可辨 .so 新旧(feat-332 第三道门、
     // feat-331 focusClearRequested 是否在运行包内), 不再靠告警反推。
-    qInfo() << "[xizz] inputcontext build feat-333";
+    qInfo() << "[xizz] inputcontext build feat-455";
 }
 
 XizzVirtualKeyboardInputContext::~XizzVirtualKeyboardInputContext() = default;
@@ -271,6 +273,22 @@ void XizzVirtualKeyboardInputContext::onDeleteRequested(int chars)
     } else if (m_cursorPosition > 0) {
         sendCommit(QString(), -chars, chars);
     }
+}
+
+// ×键整框清空: 单事件整体替换, 不依赖光标位置。循环退格式删除在光标
+// 位于文本中段时残留光标后内容, 光标在开头时全程无动作。
+void XizzVirtualKeyboardInputContext::onClearAllRequested()
+{
+    if (!m_focusObject)
+        return;
+    const QVariant surr = QInputMethod::queryFocusObject(Qt::ImSurroundingText, QVariant());
+    const int len = surr.isValid() ? surr.toString().length() : 0;
+    if (len <= 0)
+        return;
+    const QVariant cursor = QInputMethod::queryFocusObject(Qt::ImCursorPosition, QVariant());
+    const int cur = cursor.isValid() ? cursor.toInt() : 0;
+    // 替换区间 [cursor+replaceFrom, +replaceLength) = [0, len), 光标任意位置全覆盖
+    sendCommit(QString(), -cur, len);
 }
 
 void XizzVirtualKeyboardInputContext::onHideRequested()
