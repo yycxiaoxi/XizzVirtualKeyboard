@@ -217,12 +217,17 @@ Item {
     // Press-owning tracker: takes the press on a hint key at the very first moment,
     // so it keeps the grab and receives all moves/releases (this is the key fix —
     // a MouseArea that becomes visible later cannot steal an already-grabbed press).
+    // Composed events stay local: this layer owns the whole gesture (press/move/
+    // release are all handled above) and defines no onClicked of its own, so a
+    // synthesized click must die here. Letting it propagate (propagateComposedEvents)
+    // leaks clicks through the keyboard panel onto the page beneath — left-column
+    // keys (q/a) land inside the admin sidebar width and trigger its nav delegate.
     MouseArea {
         id: hintTracker
         anchors.fill: parent
         z: 9999
         hoverEnabled: true
-        propagateComposedEvents: true
+        propagateComposedEvents: false
         onPressed: {
             var k = root.hitTestHintKey(mouse.x, mouse.y)
             if (k) { root.beginHint(k); return }
